@@ -14,7 +14,7 @@ public abstract class BasePlayerState
         if (gameLogic.SetNewBoardValue(playerType, row, col))
         {
             // 새롭게 놓여진 Marker를 기반으로 게임의 결과를 판단
-            var gameResult = gameLogic.CheckGameResult();
+            var gameResult = gameLogic.CheckGameResult(row, col);
             if (gameResult == GameLogic.GameResult.None)
             {
                 HandleNextTurn(gameLogic);

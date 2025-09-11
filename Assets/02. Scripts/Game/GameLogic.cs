@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GameLogic
 {
+    public PointController pointController;         // Point를 처리할 객체
+
     private Constants.PlayerType[,] _board;         // 보드의 상태 정보
     
     public BasePlayerState firstPlayerState;        // Player A
@@ -13,11 +15,13 @@ public class GameLogic
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
 
-    public GameLogic(Constants.GameType gameType)
+    public GameLogic(PointController pointController, Constants.GameType gameType)
     {
+        this.pointController = pointController;
+        
         // 보드의 상태 정보 초기화
         _board = 
-            new Constants.PlayerType[Constants.BlockColumnCount, Constants.BlockColumnCount];
+            new Constants.PlayerType[Constants.BoardSize, Constants.BoardSize];
         
         // Game Type 초기화
         switch (gameType)
@@ -58,8 +62,18 @@ public class GameLogic
     {
         if (_board[row, col] != Constants.PlayerType.None) return false;
         
-        // 오목알 표시 구현
-        
+        if (playerType == Constants.PlayerType.PlayerA)
+        {
+            _board[row, col] = playerType;
+            pointController.PlaceMaker(Point.MarkerType.Black, row, col);
+            return true;
+        }
+        else if (playerType == Constants.PlayerType.PlayerB)
+        {
+            _board[row, col] = playerType;
+            pointController.PlaceMaker(Point.MarkerType.White, row, col);
+            return true;
+        }        
         return false;
     }
     
@@ -71,13 +85,16 @@ public class GameLogic
         secondPlayerState = null;
 
         // 유저에게 Game Over 표시
+        Debug.Log("게임 결과 : " + gameResult);
+
     }
     
     // 게임의 결과 확인
-    public GameResult CheckGameResult()
+    public GameResult CheckGameResult(int y, int x)
     {
-        // 게임 결과 확인
-        
+        if (OmokAI.CheckWin(_board, Constants.PlayerType.PlayerA, y, x)) { return GameResult.Win; }
+        if (OmokAI.CheckWin(_board, Constants.PlayerType.PlayerB, y, x)) { return GameResult.Lose; }
+        if (OmokAI.IsBoardFull(_board)) { return GameResult.Draw; }
         return GameResult.None;
     }
 }

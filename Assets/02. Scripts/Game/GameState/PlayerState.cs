@@ -13,10 +13,19 @@ public class PlayerState : BasePlayerState
     
     public override void OnEnter(GameLogic gameLogic)
     {
+        // 1. First Player인지 확인해서 게임 UI에 현재 턴 표시
+        
+        // 2. Point Controller에게 해야 할 일을 전달
+        gameLogic.pointController.OnPointClickedDelegate = (row, col) =>
+        {
+            // Point가 터치 될 때까지 기다렸다가 터치 되면 처리할 일
+            HandleMove(gameLogic, row, col);
+        };
     }
 
     public override void OnExit(GameLogic gameLogic)
     {
+        gameLogic.pointController.OnPointClickedDelegate = null;
     }
 
     public override void HandleMove(GameLogic gameLogic, int row, int col)
