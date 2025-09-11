@@ -20,7 +20,6 @@ public class PlayerState : BasePlayerState
 
     public PlayerState(bool isFirstPlayer, NetworkManager networkManager, string roomId) : this(isFirstPlayer)
     {
-        Debug.Log("Player");
         _networkManager = networkManager;
         _roomId = roomId;
         _isMultiplay = true;

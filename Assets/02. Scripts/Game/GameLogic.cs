@@ -41,14 +41,27 @@ public class GameLogic
                 SetState(firstPlayerState);
                 break;
             case Constants.GameType.MultiPlay:
-                Debug.Log("multi");
-                _networkManager = new NetworkManager((roomId) =>
+                _networkManager = new NetworkManager((state, roomId) =>
                 {
                     _roomId = roomId;
-                    Debug.Log("## Start Game ##");
-                    firstPlayerState = new PlayerState(true, _networkManager, _roomId);
-                    secondPlayerState = new MultiplayerState(false, _networkManager);
-                    SetState(firstPlayerState);
+                    switch (state)
+                    {
+                        case Constants.MultiplayControllerState.Waiting:
+                            Debug.Log("## Waiting ##");
+                            firstPlayerState = new PlayerState(true, _networkManager, _roomId);
+                            secondPlayerState = new MultiplayerState(false, _networkManager);
+                            SetState(firstPlayerState);
+                            break;
+                        case Constants.MultiplayControllerState.Second:
+                            Debug.Log("## Second ##");
+                            firstPlayerState = new MultiplayerState(true, _networkManager);
+                            secondPlayerState = new PlayerState(false, _networkManager, _roomId);
+                            SetState(firstPlayerState);
+                            break;
+                        case Constants.MultiplayControllerState.Start:
+                            Debug.Log("## Start ##");
+                            break;
+                    }
                 });
                 break;
         }

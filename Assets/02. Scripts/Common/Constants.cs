@@ -3,11 +3,9 @@ public static class Constants
 {
     public enum MultiplayControllerState
     {
-        CreateRoom,
-        JoinRoom,
-        StartGame,
-        ExitRoom,
-        EndGame
+        Waiting,
+        Second,
+        Start
     }
     public enum GameType { SinglePlay, DualPlay, MultiPlay }
     public enum PlayerType { None, PlayerA, PlayerB }

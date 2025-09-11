@@ -10,7 +10,6 @@ public class MultiplayerState : BasePlayerState
 
     public MultiplayerState(bool isFirstPlayer, NetworkManager networkManager)
     {
-        Debug.Log("MultiPlayer");
         _isFirstPlayer = isFirstPlayer;
         _networkManager = networkManager;
         _playerType = _isFirstPlayer ? Constants.PlayerType.PlayerA : Constants.PlayerType.PlayerB;
