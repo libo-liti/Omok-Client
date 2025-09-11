@@ -6,7 +6,7 @@ public class PlayerState : BasePlayerState
 {
     private bool _isFirstPlayer;
     private Constants.PlayerType _playerType;
-    private NetworkManager _networkManager;
+    private MultiplayController _multiplayController;
 
     private bool _isMultiplay;
     private string _roomId;
@@ -18,9 +18,9 @@ public class PlayerState : BasePlayerState
             Constants.PlayerType.PlayerA :  Constants.PlayerType.PlayerB;
     }
 
-    public PlayerState(bool isFirstPlayer, NetworkManager networkManager, string roomId) : this(isFirstPlayer)
+    public PlayerState(bool isFirstPlayer, MultiplayController multiplayController, string roomId) : this(isFirstPlayer)
     {
-        _networkManager = networkManager;
+        _multiplayController = multiplayController;
         _roomId = roomId;
         _isMultiplay = true;
     }
@@ -47,7 +47,7 @@ public class PlayerState : BasePlayerState
         ProcessMove(gameLogic, _playerType, row, col);
         if (_isMultiplay)
         {
-            _networkManager.PlaceStone(_roomId, col, row);
+            _multiplayController.PlaceStone(_roomId, col, row);
         }
     }
 

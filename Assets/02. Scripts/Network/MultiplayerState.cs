@@ -6,18 +6,18 @@ public class MultiplayerState : BasePlayerState
 {
     private Constants.PlayerType _playerType;
     private bool _isFirstPlayer;
-    private NetworkManager _networkManager;
+    private MultiplayController _multiplayController;
 
-    public MultiplayerState(bool isFirstPlayer, NetworkManager networkManager)
+    public MultiplayerState(bool isFirstPlayer, MultiplayController multiplayController)
     {
         _isFirstPlayer = isFirstPlayer;
-        _networkManager = networkManager;
+        _multiplayController = multiplayController;
         _playerType = _isFirstPlayer ? Constants.PlayerType.PlayerA : Constants.PlayerType.PlayerB;
     }
     
     public override void OnEnter(GameLogic gameLogic)
     {
-        _networkManager.onBlockDataChanged = blockIndex =>
+        _multiplayController.onBlockDataChanged = blockIndex =>
         {
             var row = blockIndex / Constants.BoardSize;
             var col = blockIndex % Constants.BoardSize;
@@ -30,7 +30,7 @@ public class MultiplayerState : BasePlayerState
 
     public override void OnExit(GameLogic gameLogic)
     {
-        _networkManager.onBlockDataChanged = null;
+        _multiplayController.onBlockDataChanged = null;
     }
 
     public override void HandleMove(GameLogic gameLogic, int row, int col)

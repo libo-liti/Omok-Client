@@ -14,7 +14,7 @@ public class GameLogic
     public enum GameResult { None, Win, Lose, Draw }
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
-    private NetworkManager _networkManager;
+    private MultiplayController _multiplayController;
     private string _roomId;
 
     public GameLogic(PointController pointController, Constants.GameType gameType)
@@ -41,21 +41,21 @@ public class GameLogic
                 SetState(firstPlayerState);
                 break;
             case Constants.GameType.MultiPlay:
-                _networkManager = new NetworkManager((state, roomId) =>
+                _multiplayController = new MultiplayController((state, roomId) =>
                 {
                     _roomId = roomId;
                     switch (state)
                     {
                         case Constants.MultiplayControllerState.Waiting:
                             Debug.Log("## Waiting ##");
-                            firstPlayerState = new PlayerState(true, _networkManager, _roomId);
-                            secondPlayerState = new MultiplayerState(false, _networkManager);
+                            firstPlayerState = new PlayerState(true, _multiplayController, _roomId);
+                            secondPlayerState = new MultiplayerState(false, _multiplayController);
                             SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.Second:
                             Debug.Log("## Second ##");
-                            firstPlayerState = new MultiplayerState(true, _networkManager);
-                            secondPlayerState = new PlayerState(false, _networkManager, _roomId);
+                            firstPlayerState = new MultiplayerState(true, _multiplayController);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _roomId);
                             SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.Start:
@@ -126,6 +126,6 @@ public class GameLogic
 
     public void Dispose()
     {
-        _networkManager.Dispose();
+        _multiplayController.Dispose();
     }
 }
