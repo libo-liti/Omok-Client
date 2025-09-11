@@ -191,7 +191,7 @@ public static class OmokAI
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			int count = 1;
+			int count = board[y, x] == player ? 1 : 0;
 			// 순방향
 			for (int j = 1; j <= 5; j++)
 			{
