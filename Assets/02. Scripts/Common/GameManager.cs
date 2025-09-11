@@ -55,4 +55,10 @@ public class GameManager : Singleton<GameManager>
         //     _gameLogic = new GameLogic(pointController, _gameType);
         // }
     }
+    
+    private void OnApplicationQuit()
+    {
+        _gameLogic?.Dispose();
+        _gameLogic = null;
+    }
 }

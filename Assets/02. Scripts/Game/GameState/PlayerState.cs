@@ -1,14 +1,29 @@
 
+using Unity.VisualScripting;
+using UnityEngine;
+
 public class PlayerState : BasePlayerState
 {
     private bool _isFirstPlayer;
     private Constants.PlayerType _playerType;
+    private NetworkManager _networkManager;
+
+    private bool _isMultiplay;
+    private string _roomId;
     
     public PlayerState(bool isFirstPlayer)
     {
         _isFirstPlayer = isFirstPlayer;
         _playerType = _isFirstPlayer ? 
             Constants.PlayerType.PlayerA :  Constants.PlayerType.PlayerB;
+    }
+
+    public PlayerState(bool isFirstPlayer, NetworkManager networkManager, string roomId) : this(isFirstPlayer)
+    {
+        Debug.Log("Player");
+        _networkManager = networkManager;
+        _roomId = roomId;
+        _isMultiplay = true;
     }
     
     public override void OnEnter(GameLogic gameLogic)
@@ -31,6 +46,10 @@ public class PlayerState : BasePlayerState
     public override void HandleMove(GameLogic gameLogic, int row, int col)
     {
         ProcessMove(gameLogic, _playerType, row, col);
+        if (_isMultiplay)
+        {
+            _networkManager.PlaceStone(_roomId, col, row);
+        }
     }
 
     protected override void HandleNextTurn(GameLogic gameLogic)

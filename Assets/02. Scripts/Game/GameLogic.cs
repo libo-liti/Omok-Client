@@ -14,6 +14,8 @@ public class GameLogic
     public enum GameResult { None, Win, Lose, Draw }
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
+    private NetworkManager _networkManager;
+    private string _roomId;
 
     public GameLogic(PointController pointController, Constants.GameType gameType)
     {
@@ -37,6 +39,17 @@ public class GameLogic
                 secondPlayerState = new PlayerState(false);
                 // 게임 시작
                 SetState(firstPlayerState);
+                break;
+            case Constants.GameType.MultiPlay:
+                Debug.Log("multi");
+                _networkManager = new NetworkManager((roomId) =>
+                {
+                    _roomId = roomId;
+                    Debug.Log("## Start Game ##");
+                    firstPlayerState = new PlayerState(true, _networkManager, _roomId);
+                    secondPlayerState = new MultiplayerState(false, _networkManager);
+                    SetState(firstPlayerState);
+                });
                 break;
         }
     }
@@ -96,5 +109,10 @@ public class GameLogic
         if (OmokAI.CheckWin(_board, Constants.PlayerType.PlayerB, y, x)) { return GameResult.Lose; }
         if (OmokAI.IsBoardFull(_board)) { return GameResult.Draw; }
         return GameResult.None;
+    }
+
+    public void Dispose()
+    {
+        _networkManager.Dispose();
     }
 }
