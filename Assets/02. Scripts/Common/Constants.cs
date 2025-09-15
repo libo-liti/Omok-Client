@@ -1,11 +1,13 @@
 
 public static class Constants
 {
+    public const string ServerURL = "http://localhost:3000/";
     public enum MultiplayControllerState
     {
-        Waiting,
-        Second,
-        Start
+        CreateRoom,
+        JoinRoom,
+        GameStart,
+        EndGame
     }
     public enum GameType { SinglePlay, DualPlay, MultiPlay }
     public enum PlayerType { None, PlayerA, PlayerB }

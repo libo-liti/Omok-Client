@@ -46,20 +46,22 @@ public class GameLogic
                     _roomId = roomId;
                     switch (state)
                     {
-                        case Constants.MultiplayControllerState.Waiting:
-                            Debug.Log("## Waiting ##");
+                        case Constants.MultiplayControllerState.CreateRoom:
+                            Debug.Log("## CreateRoom ##");
                             firstPlayerState = new PlayerState(true, _multiplayController, _roomId);
                             secondPlayerState = new MultiplayerState(false, _multiplayController);
                             SetState(firstPlayerState);
                             break;
-                        case Constants.MultiplayControllerState.Second:
-                            Debug.Log("## Second ##");
+                        case Constants.MultiplayControllerState.JoinRoom:
+                            Debug.Log("## JoinRoom ##");
                             firstPlayerState = new MultiplayerState(true, _multiplayController);
                             secondPlayerState = new PlayerState(false, _multiplayController, _roomId);
                             SetState(firstPlayerState);
                             break;
-                        case Constants.MultiplayControllerState.Start:
-                            Debug.Log("## Start ##");
+                        case Constants.MultiplayControllerState.GameStart:
+                            Debug.Log("## GameStart ##");
+                            break;
+                        case Constants.MultiplayControllerState.EndGame:
                             break;
                     }
                 });

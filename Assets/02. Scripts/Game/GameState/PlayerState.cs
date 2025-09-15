@@ -47,7 +47,7 @@ public class PlayerState : BasePlayerState
         ProcessMove(gameLogic, _playerType, row, col);
         if (_isMultiplay)
         {
-            _multiplayController.PlaceStone(_roomId, col, row);
+            _multiplayController.DoPlayer(_roomId, col, row);
         }
     }
 
