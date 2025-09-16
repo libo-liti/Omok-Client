@@ -7,7 +7,7 @@ public class Timer : MonoBehaviour
     [SerializeField] private TMP_Text timerText;   // 3D TMP 전용
 
     [SerializeField] private float timeLimit = 30f;     // 기본 시간
-    [SerializeField] private UnityEvent onTimerEnd;     // 시간이 끝났을 때 실행할 이벤트
+    private UnityAction onTimerEnd;     // 시간이 끝났을 때 실행할 이벤트
 
     private float timeRemaining;
     private bool isRunning;
@@ -24,20 +24,15 @@ public class Timer : MonoBehaviour
         StopTimer(); // 시작 시 숨기기
     }
     
-    public void StartTimer(bool first=true)
+    public void StartTimer(bool first=true, UnityAction callback=null)
     {
+        onTimerEnd = callback;
         // Debug.Log("StartTimer");
         timeRemaining = timeLimit;
         isRunning = true;
         gameObject.SetActive(true);
-        if (first)
-        {
-            timerText.color = Color.black;
-        }
-        else
-        {
-            timerText.color = Color.white;
-        }
+        timerText.color = first? Color.black:Color.white;
+        
     }
     
     public void StopTimer()

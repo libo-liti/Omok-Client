@@ -89,9 +89,9 @@ public class GameLogic
         _currentPlayerState?.OnExit(this);
         _currentPlayerState = state;
         _currentPlayerState?.OnEnter(this);
-        
+        Debug.Log(_timer);
         _timer?.StopTimer();
-        _timer?.StartTimer(state==firstPlayerState);
+        _timer?.StartTimer(state==firstPlayerState,HandleNextTurn);
     }
     
     // _board 배열에 새로운 Marker 값을 할당
