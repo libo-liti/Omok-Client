@@ -51,9 +51,17 @@ public class GameLogic
     // 이번 턴의 상탱에 Enter 호출
     public void SetState(BasePlayerState state)
     {
+        Timer timer = GameObject.FindObjectOfType<Timer>(true);
+        
         _currentPlayerState?.OnExit(this);
         _currentPlayerState = state;
         _currentPlayerState?.OnEnter(this);
+        
+        if (timer != null)
+        {
+            timer.StopTimer();
+            timer.StartTimer(state==firstPlayerState);
+        }
     }
     
     // _board 배열에 새로운 Marker 값을 할당
@@ -85,7 +93,7 @@ public class GameLogic
         secondPlayerState = null;
 
         // 유저에게 Game Over 표시
-        Debug.Log("게임 결과 : " + gameResult);
+        // Debug.Log("게임 결과 : " + gameResult);
 
     }
     
@@ -97,4 +105,10 @@ public class GameLogic
         if (OmokAI.IsBoardFull(_board)) { return GameResult.Draw; }
         return GameResult.None;
     }
+    
+    public void HandleNextTurn(BasePlayerState state=null)
+    {
+        _currentPlayerState?.HandleNextTurn(this);
+    }
+
 }
