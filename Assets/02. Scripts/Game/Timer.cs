@@ -21,13 +21,11 @@ public class Timer : MonoBehaviour
 
     private void Start()
     {
-        StopTimer(); // 시작 시 숨기기
     }
     
     public void StartTimer(bool first=true, UnityAction callback=null)
     {
         onTimerEnd = callback;
-        // Debug.Log("StartTimer");
         timeRemaining = timeLimit;
         isRunning = true;
         gameObject.SetActive(true);
