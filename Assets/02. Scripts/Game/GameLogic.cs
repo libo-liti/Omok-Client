@@ -106,7 +106,7 @@ public class GameLogic
         return GameResult.None;
     }
     
-    public void HandleNextTurn(BasePlayerState state=null)
+    public void HandleNextTurn()
     {
         _currentPlayerState?.HandleNextTurn(this);
     }

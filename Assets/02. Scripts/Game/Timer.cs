@@ -26,7 +26,7 @@ public class Timer : MonoBehaviour
     
     public void StartTimer(bool first=true)
     {
-        Debug.Log("StartTimer");
+        // Debug.Log("StartTimer");
         timeRemaining = timeLimit;
         isRunning = true;
         gameObject.SetActive(true);

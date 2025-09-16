@@ -55,4 +55,8 @@ public class GameManager : Singleton<GameManager>
         //     _gameLogic = new GameLogic(pointController, _gameType);
         // }
     }
+    public void HandleNextTurn()
+    {
+        _gameLogic?.HandleNextTurn();
+    }
 }
