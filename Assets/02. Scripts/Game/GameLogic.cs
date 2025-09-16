@@ -17,7 +17,7 @@ public class GameLogic
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
     private TMP_Text _resultText;
     Color fontColor = Color.white;
-    private MultiplayController _multiplayController;
+    public MultiplayController _multiplayController;
     private string _roomId;
 
     public GameLogic(PointController pointController, Constants.GameType gameType)

@@ -142,7 +142,10 @@ public class GameManager : Singleton<GameManager>
     
     private void OnApplicationQuit()
     {
-        _gameLogic?.Dispose();
-        _gameLogic = null;
+        if (_gameLogic._multiplayController != null)
+        {
+            _gameLogic?.Dispose();
+            _gameLogic = null;
+        }
     }
 }
