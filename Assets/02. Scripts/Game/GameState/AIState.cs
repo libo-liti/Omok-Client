@@ -25,7 +25,7 @@ public class AIState : BasePlayerState
         ProcessMove(gameLogic, Constants.PlayerType.PlayerB, row, col);
     }
 
-    protected override void HandleNextTurn(GameLogic gameLogic)
+    public override void HandleNextTurn(GameLogic gameLogic)
     {
         gameLogic.SetState(gameLogic.firstPlayerState);
     }

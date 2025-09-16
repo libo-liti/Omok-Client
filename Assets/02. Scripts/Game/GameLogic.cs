@@ -15,6 +15,7 @@ public class GameLogic
     public enum GameResult { None, Win, Lose, Draw }
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
+    private Timer _timer;
     private TMP_Text _resultText;
     Color fontColor = Color.white;
     public MultiplayController _multiplayController;
@@ -28,6 +29,8 @@ public class GameLogic
         _board = 
             new Constants.PlayerType[Constants.BoardSize, Constants.BoardSize];
         
+        _timer = GameObject.FindObjectOfType<Timer>(true);
+
         // Game Type 초기화
         switch (gameType)
         {
@@ -86,6 +89,8 @@ public class GameLogic
         _currentPlayerState?.OnExit(this);
         _currentPlayerState = state;
         _currentPlayerState?.OnEnter(this);
+        _timer?.StopTimer();
+        _timer?.StartTimer(state==firstPlayerState,HandleNextTurn);
     }
     
     // _board 배열에 새로운 Marker 값을 할당
@@ -134,6 +139,8 @@ public class GameLogic
 
         // 유저에게 Game Over 표시
         Debug.Log("게임 결과 : " + gameResult);
+        _timer?.StopTimer();
+
 
     }
     
@@ -150,4 +157,10 @@ public class GameLogic
     {
         _multiplayController.Dispose();
     }
+    
+    public void HandleNextTurn()
+    {
+        _currentPlayerState?.HandleNextTurn(this);
+    }
+
 }

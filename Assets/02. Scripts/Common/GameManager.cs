@@ -40,6 +40,7 @@ public class GameManager : Singleton<GameManager>
         }*/
     }
 
+
     /// <summary>
     /// Main에서 Game Scene으로 전환시 호출될 메서드
     /// </summary>
@@ -125,6 +126,10 @@ public class GameManager : Singleton<GameManager>
     public void Logout()
     {
         guestName = null;
+    }
+    public void HandleNextTurn()
+    {
+        _gameLogic?.HandleNextTurn();
     }
 
     public void QuitGame()

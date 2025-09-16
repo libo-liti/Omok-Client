@@ -1,3 +1,4 @@
+using UnityEngine;
 
 using Unity.VisualScripting;
 using UnityEngine;
@@ -28,7 +29,8 @@ public class PlayerState : BasePlayerState
     public override void OnEnter(GameLogic gameLogic)
     {
         // 1. First Player인지 확인해서 게임 UI에 현재 턴 표시
-        
+        Debug.Log(_playerType + "'s turn");
+
         // 2. Point Controller에게 해야 할 일을 전달
         gameLogic.pointController.OnPointClickedDelegate = (row, col) =>
         {
@@ -51,7 +53,7 @@ public class PlayerState : BasePlayerState
         }
     }
 
-    protected override void HandleNextTurn(GameLogic gameLogic)
+    public override void HandleNextTurn(GameLogic gameLogic)
     {
         if (_isFirstPlayer)
         {
