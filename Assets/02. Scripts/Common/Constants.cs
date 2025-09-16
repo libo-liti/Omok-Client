@@ -1,7 +1,8 @@
 
 public static class Constants
 {
-    public const string ServerURL = "http://localhost:3000/";
+    // public const string ServerURL = "http://localhost:3000/";
+    public const string ServerURL = "http://3.85.87.205:3000/";
     public enum MultiplayControllerState
     {
         CreateRoom,
