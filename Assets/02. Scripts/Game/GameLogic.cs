@@ -140,6 +140,8 @@ public class GameLogic
 
         // 유저에게 Game Over 표시
         Debug.Log("게임 결과 : " + gameResult);
+        _timer?.StopTimer();
+
 
     }
     

@@ -131,8 +131,6 @@ public class GameManager : Singleton<GameManager>
     {
         _gameLogic?.HandleNextTurn();
     }
-}
-
 
     public void QuitGame()
     {

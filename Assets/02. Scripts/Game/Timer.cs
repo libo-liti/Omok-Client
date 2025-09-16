@@ -4,7 +4,7 @@ using UnityEngine.Events;
 
 public class Timer : MonoBehaviour
 {
-    [SerializeField] private TextMeshPro timerText;   // 3D TMP 전용
+    [SerializeField] private TMP_Text timerText;   // 3D TMP 전용
 
     [SerializeField] private float timeLimit = 30f;     // 기본 시간
     [SerializeField] private UnityEvent onTimerEnd;     // 시간이 끝났을 때 실행할 이벤트
@@ -16,7 +16,7 @@ public class Timer : MonoBehaviour
     {
         // Inspector에서 안 넣어줬다면 자식에서 TMP 찾기
         if (timerText == null)
-            timerText = GetComponentInChildren<TextMeshPro>();
+            timerText = GetComponentInChildren<TMP_Text>();
     }
 
     private void Start()

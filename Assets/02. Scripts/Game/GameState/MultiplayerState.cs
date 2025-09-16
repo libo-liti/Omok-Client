@@ -38,7 +38,7 @@ public class MultiplayerState : BasePlayerState
         ProcessMove(gameLogic, _playerType, row, col);
     }
 
-    protected override void HandleNextTurn(GameLogic gameLogic)
+    public override void HandleNextTurn(GameLogic gameLogic)
     {
         if (_isFirstPlayer)
             gameLogic.SetState(gameLogic.secondPlayerState);
