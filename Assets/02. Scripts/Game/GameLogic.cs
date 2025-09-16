@@ -1,5 +1,6 @@
 
 using System;
+using TMPro;
 using UnityEngine;
 
 public class GameLogic
@@ -14,6 +15,8 @@ public class GameLogic
     public enum GameResult { None, Win, Lose, Draw }
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
+    private TMP_Text _resultText;
+    Color fontColor = Color.white;
 
     public GameLogic(PointController pointController, Constants.GameType gameType)
     {
@@ -83,6 +86,22 @@ public class GameLogic
         SetState(null);
         firstPlayerState = null;
         secondPlayerState = null;
+        
+        string message = "";
+        switch (gameResult)
+        {
+            case GameResult.Win:
+                message = "흑돌 승";
+                fontColor = Color.black;
+                break;
+            case GameResult.Lose:
+                message = "백돌 승";
+                fontColor = Color.white;
+                break;
+        }
+
+        GameSceneUIManager.Instance.ShowResult(message, fontColor);
+        GameSceneUIManager.Instance.ShowButton(gameResult);
 
         // 유저에게 Game Over 표시
         Debug.Log("게임 결과 : " + gameResult);

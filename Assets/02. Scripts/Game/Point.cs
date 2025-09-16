@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 public class Point : MonoBehaviour
 {
 	[SerializeField] private SpriteRenderer markerSpriteRenderer;
+	[SerializeField] private SpriteRenderer borderSpriteRenderer;
 	
 	public delegate void OnPointClicked(int index);
 	private OnPointClicked _onPointClicked;
@@ -25,27 +26,48 @@ public class Point : MonoBehaviour
 	// 2. 마커 설정
 	public void SetMarker(MarkerType markerType)
 	{
-		Color markerColor = markerSpriteRenderer.color;
+		Color markerColor = Color.clear;
+		Color borderColor = Color.clear;
 
 		switch (markerType)
 		{
 			case MarkerType.None:
-				markerColor = Color.black;
-				markerColor.a = 0;
+				markerColor = new Color(0, 0, 0, 0);
+				borderColor = new Color(0, 0, 0, 0);
 				break;
 			case MarkerType.Black:
 				markerColor = Color.black;
-				markerColor.a = 1;
+				borderColor = Color.yellow;
 				break;
 			case MarkerType.White:
 				markerColor = Color.white;
-				markerColor.a = 1;
+				borderColor = Color.red;
 				break;
 		}
 
 		markerSpriteRenderer.color = markerColor;
 
+		if (borderSpriteRenderer != null)
+		{
+			borderSpriteRenderer.color = borderColor;
+			borderSpriteRenderer.enabled = (markerType != MarkerType.None);
+
+			// 원본은 0.9 사이즈
+			markerSpriteRenderer.transform.localScale = Vector3.one * 0.9f;
+
+			// 뒤쪽 레이어 1.1 사이즈
+			borderSpriteRenderer.transform.localScale = Vector3.one * 1.1f;
+		}
 	}
+	
+	public void HideBorder()
+	{
+		if (borderSpriteRenderer != null)
+		{
+			borderSpriteRenderer.enabled = false;
+		}
+	}
+
 	
 	// 3. 블럭 터치 처리
 	private void OnMouseUpAsButton()
