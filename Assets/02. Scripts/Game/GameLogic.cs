@@ -1,5 +1,6 @@
 
 using System;
+using TMPro;
 using UnityEngine;
 
 public class GameLogic
@@ -14,6 +15,10 @@ public class GameLogic
     public enum GameResult { None, Win, Lose, Draw }
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
+    private TMP_Text _resultText;
+    Color fontColor = Color.white;
+    public MultiplayController _multiplayController;
+    private string _roomId;
 
     public GameLogic(PointController pointController, Constants.GameType gameType)
     {
@@ -37,6 +42,33 @@ public class GameLogic
                 secondPlayerState = new PlayerState(false);
                 // 게임 시작
                 SetState(firstPlayerState);
+                break;
+            case Constants.GameType.MultiPlay:
+                _multiplayController = new MultiplayController((state, roomId) =>
+                {
+                    _roomId = roomId;
+                    Debug.Log($"state : {state}");
+                    switch (state)
+                    {
+                        case Constants.MultiplayControllerState.CreateRoom:
+                            Debug.Log("## CreateRoom ##");
+                            firstPlayerState = new PlayerState(true, _multiplayController, _roomId);
+                            secondPlayerState = new MultiplayerState(false, _multiplayController);
+                            SetState(firstPlayerState);
+                            break;
+                        case Constants.MultiplayControllerState.JoinRoom:
+                            Debug.Log("## JoinRoom ##");
+                            firstPlayerState = new MultiplayerState(true, _multiplayController);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _roomId);
+                            SetState(firstPlayerState);
+                            break;
+                        case Constants.MultiplayControllerState.GameStart:
+                            Debug.Log("## GameStart ##");
+                            break;
+                        case Constants.MultiplayControllerState.EndGame:
+                            break;
+                    }
+                });
                 break;
         }
     }
@@ -83,6 +115,22 @@ public class GameLogic
         SetState(null);
         firstPlayerState = null;
         secondPlayerState = null;
+        
+        string message = "";
+        switch (gameResult)
+        {
+            case GameResult.Win:
+                message = "흑돌 승";
+                fontColor = Color.black;
+                break;
+            case GameResult.Lose:
+                message = "백돌 승";
+                fontColor = Color.white;
+                break;
+        }
+
+        GameSceneUIManager.Instance.ShowResult(message, fontColor);
+        GameSceneUIManager.Instance.ShowButton(gameResult);
 
         // 유저에게 Game Over 표시
         Debug.Log("게임 결과 : " + gameResult);
@@ -96,5 +144,10 @@ public class GameLogic
         if (OmokAI.CheckWin(_board, Constants.PlayerType.PlayerB, y, x)) { return GameResult.Lose; }
         if (OmokAI.IsBoardFull(_board)) { return GameResult.Draw; }
         return GameResult.None;
+    }
+
+    public void Dispose()
+    {
+        _multiplayController.Dispose();
     }
 }

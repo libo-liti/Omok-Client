@@ -5,6 +5,7 @@ using UnityEngine.Serialization;
 public class PointController : MonoBehaviour
 {
 	private Point[] _points;
+	private Point _lastPoint; //마지막 돌 
 	
 	public delegate void OnPointClicked(int row, int col);
 	public OnPointClicked OnPointClickedDelegate;
@@ -31,8 +32,19 @@ public class PointController : MonoBehaviour
 	{
 		// row, col >> index 변환
 		var pointIndex = row * Constants.BoardSize + col;
+		if (_lastPoint != null)
+			_lastPoint.HideBorder();
+
+		// 새돌 세팅
 		_points[pointIndex].SetMarker(markerType);
+
+		// 최신돌 저장
+		_lastPoint = _points[pointIndex];
+		
+		//효과음 재생
+		AudioManager.Instance.PlayStoneSE();
 	}
+	
 	
 
 	// 바둑돌 놓을 위치 미리보기
