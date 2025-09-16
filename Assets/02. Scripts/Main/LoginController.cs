@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -5,6 +6,13 @@ public class LoginController : MonoBehaviour
 {
     [SerializeField] private TMP_InputField emailField;
     [SerializeField] private TMP_InputField passwordInputField;
+
+    private AuthenticationManager _authenticationManager;
+
+    private void Start()
+    {
+        _authenticationManager = GameObject.Find("NetworkManager").GetComponent<AuthenticationManager>();
+    }
 
     public void OnClickLoginButton()
     {
@@ -22,12 +30,17 @@ public class LoginController : MonoBehaviour
             return;
         }
 
-        // 아직 네트워크 연결 없으니 -> 무조건 실패처리
-        GameManager.Instance.OpenConfirmPanel("아이디가 존재하지 않습니다.", () =>
-        {
-            emailField.text = "";
-            passwordInputField.text = "";
-        });
+        // // 아직 네트워크 연결 없으니 -> 무조건 실패처리
+        // GameManager.Instance.OpenConfirmPanel("아이디가 존재하지 않습니다.", () =>
+        // {
+        //     emailField.text = "";
+        //     passwordInputField.text = "";
+        // });
+
+        _authenticationManager.username = username;
+        _authenticationManager.password = password;
+
+        _authenticationManager.OnLoginButtonClicked();
     }
 
     public void OnClickSignupButton()

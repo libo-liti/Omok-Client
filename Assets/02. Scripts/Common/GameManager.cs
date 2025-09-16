@@ -38,7 +38,6 @@ public class GameManager : Singleton<GameManager>
             pointController.InitPoints();
             _gameLogic = new GameLogic(pointController, _gameType);
         }*/
-        
     }
 
     /// <summary>

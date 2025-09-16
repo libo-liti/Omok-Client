@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
 using TMPro;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class AuthResponse
@@ -30,52 +32,18 @@ public class SigninData
 
 public class AuthenticationManager : MonoBehaviour
 {
-    public TMP_InputField usernameInput;
-    public TMP_InputField passwordInput;
-    public TMP_InputField passwordCheckInput;
-    public TMP_InputField nicknameInput; // 닉네임 입력 필드 추가
-    public TextMeshProUGUI resultText;
-    public Button signupButton;
-    public Button loginButton;
-
-    void Start()
+    public string username;
+    public string password;
+    public string nickname; // 닉네임 입력 필드 추가
+    // public TextMeshProUGUI resultText;
+    
+    public void OnSignupButtonClicked()
     {
-        signupButton.onClick.AddListener(OnSignupButtonClicked);
-        loginButton.onClick.AddListener(OnLoginButtonClicked);
-    }
-
-    void OnSignupButtonClicked()
-    {
-        string username = usernameInput.text;
-        string password = passwordInput.text;
-        string passwordCheck = passwordCheckInput.text;
-        string nickname = nicknameInput.text; // 닉네임 값 가져오기
-
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(passwordCheck)
-            || string.IsNullOrEmpty(nickname))
-        {
-            resultText.text = "모든 정보를 입력해주세요.";
-            return;
-        }
-        else if (password != passwordCheck)
-        {
-            resultText.text = "비밀번호가 일치하지 않습니다.";
-            return;
-        }
-        
         StartCoroutine(SendAuthRequest("api/signup", username, password, nickname));
     }
 
-    void OnLoginButtonClicked()
+    public void OnLoginButtonClicked()
     {
-        string username = usernameInput.text;
-        string password = passwordInput.text;
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-        {
-            resultText.text = "모든 정보를 입력해주세요.";
-            return;
-        }
-        
         StartCoroutine(SendAuthRequest("api/login", username, password));
     }
 
@@ -122,13 +90,13 @@ public class AuthenticationManager : MonoBehaviour
             
             if (www.result != UnityWebRequest.Result.Success)
             {
-                resultText.text = authResponse.message;
+                // resultText.text = authResponse.message;
+                Debug.Log("로그인 실패!");
             }
             else
             {
-                resultText.text = authResponse.message;
-
-                if (endpoint == "login" && authResponse.success)
+                // resultText.text = authResponse.message;
+                if (endpoint == "api/login" && authResponse.success)
                 {
                     Debug.Log("로그인 성공! 게임 시작 화면으로 전환합니다.");
                 }

@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using System.Text.RegularExpressions;
@@ -8,6 +9,13 @@ public class JoinController : MonoBehaviour
     [SerializeField] private TMP_InputField nicknameField;
     [SerializeField] private TMP_InputField passwordField;
     [SerializeField] private TMP_InputField confirmPasswordField;
+
+    [SerializeField] private AuthenticationManager _authenticationManager;
+        
+    private void Start()
+    {
+        _authenticationManager = GameObject.Find("NetworkManager").GetComponent<AuthenticationManager>();
+    }
 
     public void OnClickJoinButton()
     {
@@ -47,6 +55,15 @@ public class JoinController : MonoBehaviour
             passwordField.text = "";
             confirmPasswordField.text = "";
         });
+        if (_authenticationManager != null)
+        {
+            _authenticationManager.username = email;
+            _authenticationManager.password = password;
+            _authenticationManager.nickname = nickname;
+        }
+        
+        _authenticationManager.OnSignupButtonClicked();
+        
         Destroy(gameObject);
     }
 

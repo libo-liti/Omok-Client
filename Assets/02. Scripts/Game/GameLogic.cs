@@ -47,6 +47,7 @@ public class GameLogic
                 _multiplayController = new MultiplayController((state, roomId) =>
                 {
                     _roomId = roomId;
+                    Debug.Log($"state : {state}");
                     switch (state)
                     {
                         case Constants.MultiplayControllerState.CreateRoom:
