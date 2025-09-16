@@ -14,6 +14,7 @@ public class GameLogic
     public enum GameResult { None, Win, Lose, Draw }
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
+    private Timer _timer;
 
     public GameLogic(PointController pointController, Constants.GameType gameType)
     {
@@ -23,6 +24,8 @@ public class GameLogic
         _board = 
             new Constants.PlayerType[Constants.BoardSize, Constants.BoardSize];
         
+        _timer = GameObject.FindObjectOfType<Timer>(true);
+
         // Game Type 초기화
         switch (gameType)
         {
@@ -39,6 +42,7 @@ public class GameLogic
                 SetState(firstPlayerState);
                 break;
         }
+        
     }
 
     public Constants.PlayerType[,] GetBoard()
@@ -51,17 +55,13 @@ public class GameLogic
     // 이번 턴의 상탱에 Enter 호출
     public void SetState(BasePlayerState state)
     {
-        Timer timer = GameObject.FindObjectOfType<Timer>(true);
         
         _currentPlayerState?.OnExit(this);
         _currentPlayerState = state;
         _currentPlayerState?.OnEnter(this);
         
-        if (timer != null)
-        {
-            timer.StopTimer();
-            timer.StartTimer(state==firstPlayerState);
-        }
+        _timer?.StopTimer();
+        _timer?.StartTimer(state==firstPlayerState);
     }
     
     // _board 배열에 새로운 Marker 값을 할당
@@ -93,8 +93,8 @@ public class GameLogic
         secondPlayerState = null;
 
         // 유저에게 Game Over 표시
-        // Debug.Log("게임 결과 : " + gameResult);
-
+        Debug.Log("게임 결과 : " + gameResult);
+        _timer?.StopTimer();
     }
     
     // 게임의 결과 확인
