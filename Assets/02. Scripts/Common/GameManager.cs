@@ -140,4 +140,10 @@ public class GameManager : Singleton<GameManager>
     Application.Quit();
 #endif
     }
+    
+    private void OnApplicationQuit()
+    {
+        _gameLogic?.Dispose();
+        _gameLogic = null;
+    }
 }

@@ -17,6 +17,8 @@ public class GameLogic
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
     private TMP_Text _resultText;
     Color fontColor = Color.white;
+    private MultiplayController _multiplayController;
+    private string _roomId;
 
     public GameLogic(PointController pointController, Constants.GameType gameType)
     {
@@ -40,6 +42,32 @@ public class GameLogic
                 secondPlayerState = new PlayerState(false);
                 // 게임 시작
                 SetState(firstPlayerState);
+                break;
+            case Constants.GameType.MultiPlay:
+                _multiplayController = new MultiplayController((state, roomId) =>
+                {
+                    _roomId = roomId;
+                    switch (state)
+                    {
+                        case Constants.MultiplayControllerState.CreateRoom:
+                            Debug.Log("## CreateRoom ##");
+                            firstPlayerState = new PlayerState(true, _multiplayController, _roomId);
+                            secondPlayerState = new MultiplayerState(false, _multiplayController);
+                            SetState(firstPlayerState);
+                            break;
+                        case Constants.MultiplayControllerState.JoinRoom:
+                            Debug.Log("## JoinRoom ##");
+                            firstPlayerState = new MultiplayerState(true, _multiplayController);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _roomId);
+                            SetState(firstPlayerState);
+                            break;
+                        case Constants.MultiplayControllerState.GameStart:
+                            Debug.Log("## GameStart ##");
+                            break;
+                        case Constants.MultiplayControllerState.EndGame:
+                            break;
+                    }
+                });
                 break;
         }
     }
@@ -115,5 +143,10 @@ public class GameLogic
         if (OmokAI.CheckWin(_board, Constants.PlayerType.PlayerB, y, x)) { return GameResult.Lose; }
         if (OmokAI.IsBoardFull(_board)) { return GameResult.Draw; }
         return GameResult.None;
+    }
+
+    public void Dispose()
+    {
+        _multiplayController.Dispose();
     }
 }
