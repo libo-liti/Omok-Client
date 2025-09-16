@@ -89,7 +89,6 @@ public class GameLogic
         _currentPlayerState?.OnExit(this);
         _currentPlayerState = state;
         _currentPlayerState?.OnEnter(this);
-        Debug.Log(_timer);
         _timer?.StopTimer();
         _timer?.StartTimer(state==firstPlayerState,HandleNextTurn);
     }
