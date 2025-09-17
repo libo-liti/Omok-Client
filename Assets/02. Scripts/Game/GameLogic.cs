@@ -8,6 +8,8 @@ public class GameLogic
     public PointController pointController;         // Point를 처리할 객체
     public Timer timer;
 
+    public EmojiController _emojiController;
+    
     private Constants.PlayerType[,] _board;         // 보드의 상태 정보
     
     public BasePlayerState firstPlayerState;        // Player A
@@ -22,11 +24,12 @@ public class GameLogic
     private string _roomId;
     private Constants.GameType _gameType;
 
-    public GameLogic(PointController pointController, Timer timer, Constants.GameType gameType)
+    public GameLogic(PointController pointController, EmojiController emojiController, Timer timer, Constants.GameType gameType)
     {
         this.pointController = pointController;
         this.timer = timer;
         this.timer.StopTimer(); // 타이머 끈 상태로 시작
+        _emojiController = emojiController;
         
         // 보드의 상태 정보 초기화
         _board = 
@@ -51,23 +54,23 @@ public class GameLogic
                 _multiplayController = new MultiplayController((state, roomId) =>
                 {
                     _roomId = roomId;
-                    Debug.Log($"state : {state}");
                     switch (state)
                     {
                         case Constants.MultiplayControllerState.CreateRoom:
                             Debug.Log("## CreateRoom ##");
-                            firstPlayerState = new PlayerState(true, _multiplayController, _roomId);
+                            firstPlayerState = new PlayerState(true, _multiplayController, _emojiController, _roomId);
                             secondPlayerState = new MultiplayerState(false, _multiplayController);
-                            SetState(firstPlayerState);
+                            // SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.JoinRoom:
                             Debug.Log("## JoinRoom ##");
                             firstPlayerState = new MultiplayerState(true, _multiplayController);
-                            secondPlayerState = new PlayerState(false, _multiplayController, _roomId);
-                            SetState(firstPlayerState);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _emojiController, _roomId);
+                            // SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.GameStart:
                             Debug.Log("## GameStart ##");
+                            SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.EndGame:
                             break;
@@ -166,6 +169,6 @@ public class GameLogic
 
     public void Dispose()
     {
-        _multiplayController.Dispose();
+        _multiplayController?.Dispose();
     }
 }

@@ -17,6 +17,11 @@ public class StoneData
     public int y;
     public string player;
 }
+
+public class EmojiData
+{
+    public int emoji;
+}
 public class MultiplayController
 {
     private SocketIOUnity socket;
@@ -24,6 +29,7 @@ public class MultiplayController
     private Action<Constants.MultiplayControllerState, string> _onMultiplayStateChanged;
     public Action<int> onBlockDataChanged;
 
+    public Action<int> setEmoji;
     public MultiplayController(Action<Constants.MultiplayControllerState, string> onMultiplayStateChanged)
     {
         _onMultiplayStateChanged = onMultiplayStateChanged;
@@ -34,10 +40,11 @@ public class MultiplayController
         socket.OnConnected += OnServerConnected;
         socket.OnDisconnected += OnServerDisconnected;
 
-        socket.On("createRoom", CreateRoom);
-        socket.On("joinRoom", JoinRoom);
-        socket.On("gameStart", GameStart);
-        socket.On("doOpponent", DoOpponent);
+        socket.OnUnityThread("createRoom", CreateRoom);
+        socket.OnUnityThread("joinRoom", JoinRoom);
+        socket.OnUnityThread("gameStart", GameStart);
+        socket.OnUnityThread("doOpponent", DoOpponent);
+        socket.OnUnityThread("opponentEmoji", OpponentEmoji);
         
         socket.Connect();
     }
@@ -77,18 +84,26 @@ public class MultiplayController
         onBlockDataChanged?.Invoke(data.y * Constants.BoardSize + data.x);
     }
 
+    private void OpponentEmoji(SocketIOResponse response)
+    {
+        var data = JsonUtility.FromJson<EmojiData>(response.GetValue().GetRawText());
+        setEmoji?.Invoke(data.emoji);
+    }
+
     public void DoPlayer(string myRoomId, int x, int y)
     {
         socket.Emit("doPlayer", new { room = myRoomId, x = x, y = y });
     }
+    
+    public void PlayerEmoji(string myRoomId, int emojiNum)
+    {
+        socket.Emit("playerEmoji", new { room = myRoomId, emoji = emojiNum });
+    }
 
     public void Dispose()
     {
-        if (socket != null)
-        {
-            socket.Disconnect();
-            socket.Dispose();
-            socket = null;
-        }
+        socket?.Disconnect();
+        socket?.Dispose();
+        socket = null;
     }
 }
