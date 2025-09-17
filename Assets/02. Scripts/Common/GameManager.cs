@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : Singleton<GameManager>
 {
     // Main Scene에서 선택한 게임 타입
-    [SerializeField] private Constants.GameType _gameType = Constants.GameType.DualPlay;
+    public Constants.GameType _gameType = Constants.GameType.DualPlay;
 
     /*[SerializeField] private GameObject optionPanel; //설정 메뉴 패널*/
     [SerializeField] private GameObject confirmPanel; //안내 패널
@@ -161,10 +161,5 @@ public class GameManager : Singleton<GameManager>
     {
         _gameLogic?.Dispose();
         _gameLogic = null;
-    }
-
-    public void DisconnectNetwork()
-    {
-        _gameLogic?.Dispose();
     }
 }

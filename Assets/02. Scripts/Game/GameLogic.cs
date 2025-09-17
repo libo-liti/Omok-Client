@@ -73,6 +73,18 @@ public class GameLogic
                             SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.EndGame:
+                            if (_currentPlayerState != null)
+                            {
+                                Debug.Log("상대가 기권");
+                                var result = (firstPlayerState is PlayerState) ? GameResult.Win : GameResult.Lose;
+                                EndGame(result);
+                            }
+                            break;
+                        case Constants.MultiplayControllerState.ExitRoom:
+                            Dispose(() =>
+                            {
+                                GameManager.Instance.ChangeToMainScene();
+                            });
                             break;
                     }
                 });
@@ -170,5 +182,9 @@ public class GameLogic
     public void Dispose()
     {
         _multiplayController?.Dispose();
+    }
+    public void Dispose(Action onComplete)
+    {
+        _multiplayController?.Dispose(onComplete);
     }
 }

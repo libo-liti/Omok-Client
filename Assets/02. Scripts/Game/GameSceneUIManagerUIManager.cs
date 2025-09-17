@@ -5,8 +5,11 @@ using UnityEngine.UI;
 
 public class GameSceneUIManager : MonoBehaviour
 {
-    public static GameSceneUIManager Instance; 
+    public static GameSceneUIManager Instance;
 
+    public Action SurrenderAction;
+    public Action ExitRoomAction;
+    
     [SerializeField] private TMP_Text resultText;
 
     [SerializeField] private Button exitButton;
@@ -30,14 +33,16 @@ public class GameSceneUIManager : MonoBehaviour
     {
         exitButton.onClick.AddListener(() =>
         {
-            GameManager.Instance.DisconnectNetwork();
-            GameManager.Instance.ChangeToMainScene();
+            ExitRoomAction?.Invoke();
+            if(GameManager.Instance._gameType != Constants.GameType.MultiPlay)
+                GameManager.Instance.ChangeToMainScene();
         });
         
         surrenderButton.onClick.AddListener(() =>
         {
-            GameManager.Instance.DisconnectNetwork();
-            GameManager.Instance.ChangeToMainScene();
+            SurrenderAction?.Invoke();
+            if(GameManager.Instance._gameType != Constants.GameType.MultiPlay)
+                GameManager.Instance.ChangeToMainScene();
         });
     }
 
