@@ -6,9 +6,9 @@ using UnityEngine;
 public class GameLogic
 {
     public PointController pointController;         // Point를 처리할 객체
-    public Timer timer;
-
     public EmojiController _emojiController;
+    public RenjuController renjuController;
+    public Timer timer;
     
     private Constants.PlayerType[,] _board;         // 보드의 상태 정보
     
@@ -24,12 +24,13 @@ public class GameLogic
     private string _roomId;
     private Constants.GameType _gameType;
 
-    public GameLogic(PointController pointController, EmojiController emojiController, Timer timer, Constants.GameType gameType)
+    public GameLogic(PointController pointController, EmojiController emojiController, RenjuController renjuController, Timer timer, Constants.GameType gameType)
     {
         this.pointController = pointController;
         this.timer = timer;
         this.timer.StopTimer(); // 타이머 끈 상태로 시작
         _emojiController = emojiController;
+        this.renjuController = renjuController;
         
         // 보드의 상태 정보 초기화
         _board = 
@@ -107,7 +108,8 @@ public class GameLogic
             pointController.PlaceMaker(Point.MarkerType.Black, row, col);
             return true;
         }
-        else if (playerType == Constants.PlayerType.PlayerB)
+        
+        if (playerType == Constants.PlayerType.PlayerB)
         {
             _board[row, col] = playerType;
             pointController.PlaceMaker(Point.MarkerType.White, row, col);
@@ -115,11 +117,28 @@ public class GameLogic
         }        
         return false;
     }
+
+    // 금수 위치에 X 표시 활성화
+    public void SetForbiddenPoint(bool[,] xPoints)
+    {
+        for (int i = 0; i < Constants.BoardSize; i++)
+        {
+            for (int j = 0; j < Constants.BoardSize; j++)
+            {
+                if (xPoints[i, j]) renjuController.ShowX(i, j);
+            }
+        }
+    }
+    
+    // 모든 금수 표시 숨기기
+    public void RemoveAllForbiddenPoint()
+    {
+        renjuController.HideAll();
+    }
     
     // Game Over 처리
     public void EndGame(GameResult gameResult)
     {
-        
         SetState(null);
         firstPlayerState = null;
         secondPlayerState = null;
@@ -151,11 +170,6 @@ public class GameLogic
             case Constants.GameType.MultiPlay:
                 break;
         }
-        
-        
-
-        // 유저에게 Game Over 표시
-        Debug.Log("게임 결과 : " + gameResult);
     }
     
     // 게임의 결과 확인

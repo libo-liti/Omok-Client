@@ -9,6 +9,7 @@ public class PlayerState : BasePlayerState
 
     private bool _isMultiplay;
     private string _roomId;
+    private bool[,] forbiddenPoints;
     
     public PlayerState(bool isFirstPlayer)
     {
@@ -64,17 +65,30 @@ public class PlayerState : BasePlayerState
                 gameLogic.EndGame(_isFirstPlayer ? GameLogic.GameResult.Lose : GameLogic.GameResult.Win);
             });
         }
+        
+        // 4. 흑돌이라면 렌주룰에 의한 금수 위치를 표시
+        if (_isFirstPlayer)
+        {
+            forbiddenPoints = OmokAI.IsForbidden(gameLogic.GetBoard());
+            gameLogic.SetForbiddenPoint(forbiddenPoints);
+        }
     }
 
     public override void OnExit(GameLogic gameLogic)
     {
         gameLogic.pointController.OnPointClickedDelegate = null;
-        gameLogic.timer.StopTimer();
+        gameLogic.timer.StopTimer(); // 타이머 비활성화
+        if (_isFirstPlayer) gameLogic.RemoveAllForbiddenPoint(); // 흑돌 턴 종료시 모든 금수 표시 비활성화
     }
 
     public override void HandleMove(GameLogic gameLogic, int row, int col)
     {
+        // 흑돌은 금수 위치에는 착수 불가
+        if (_isFirstPlayer && forbiddenPoints[row, col])
+            return;
+        
         ProcessMove(gameLogic, _playerType, row, col);
+        
         if (_isMultiplay)
         {
             _multiplayController.DoPlayer(_roomId, col, row);

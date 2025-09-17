@@ -87,11 +87,14 @@ public class GameManager : Singleton<GameManager>
             PointController pointController = FindFirstObjectByType<PointController>();
             Timer timer = FindFirstObjectByType<Timer>();
             EmojiController emojiController = FindFirstObjectByType<EmojiController>();
-            if (pointController != null && emojiController != null)
+            RenjuController renjuController = FindFirstObjectByType<RenjuController>();
+            if (pointController != null && emojiController != null && renjuController != null)
             {
                 pointController.InitPoints();
                 emojiController.Init();
-                _gameLogic = new GameLogic(pointController, emojiController ,timer, _gameType);
+                renjuController.Init();
+                
+                _gameLogic = new GameLogic(pointController, emojiController, renjuController, timer, _gameType);
                 
                 Debug.Log(_gameType);
             }
