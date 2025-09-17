@@ -39,13 +39,23 @@ public class PlayerState : BasePlayerState
         };
         
         // 3. Timer 시작 및 이벤트 전달
-        UnityThread.executeInUpdate(() =>
+        if (_isMultiplay)
+        {
+            UnityThread.executeInUpdate(() =>
+            {
+                gameLogic.timer.StartTimer(_isFirstPlayer, () =>
+                {
+                    gameLogic.EndGame(_isFirstPlayer ? GameLogic.GameResult.Lose : GameLogic.GameResult.Win);
+                });
+            });
+        }
+        else
         {
             gameLogic.timer.StartTimer(_isFirstPlayer, () =>
             {
                 gameLogic.EndGame(_isFirstPlayer ? GameLogic.GameResult.Lose : GameLogic.GameResult.Win);
             });
-        });
+        }
     }
 
     public override void OnExit(GameLogic gameLogic)

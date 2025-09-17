@@ -17,6 +17,11 @@ public class MultiplayerState : BasePlayerState
     
     public override void OnEnter(GameLogic gameLogic)
     {
+        gameLogic.timer.StartTimer(_isFirstPlayer, () =>
+        {
+            gameLogic.EndGame(_isFirstPlayer ? GameLogic.GameResult.Lose : GameLogic.GameResult.Win);
+        });
+        
         _multiplayController.onBlockDataChanged = blockIndex =>
         {
             var row = blockIndex / Constants.BoardSize;
@@ -26,11 +31,6 @@ public class MultiplayerState : BasePlayerState
                 HandleMove(gameLogic, row, col);
             });
         };
-        
-        gameLogic.timer.StartTimer(_isFirstPlayer, () =>
-        {
-            gameLogic.EndGame(_isFirstPlayer ? GameLogic.GameResult.Lose : GameLogic.GameResult.Win);
-        });
     }
 
     public override void OnExit(GameLogic gameLogic)
