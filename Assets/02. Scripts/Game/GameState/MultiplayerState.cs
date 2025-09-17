@@ -26,11 +26,17 @@ public class MultiplayerState : BasePlayerState
                 HandleMove(gameLogic, row, col);
             });
         };
+        
+        gameLogic.timer.StartTimer(_isFirstPlayer, () =>
+        {
+            gameLogic.EndGame(_isFirstPlayer ? GameLogic.GameResult.Lose : GameLogic.GameResult.Win);
+        });
     }
 
     public override void OnExit(GameLogic gameLogic)
     {
         _multiplayController.onBlockDataChanged = null;
+        gameLogic.timer.StopTimer();
     }
 
     public override void HandleMove(GameLogic gameLogic, int row, int col)
@@ -38,7 +44,7 @@ public class MultiplayerState : BasePlayerState
         ProcessMove(gameLogic, _playerType, row, col);
     }
 
-    public override void HandleNextTurn(GameLogic gameLogic)
+    protected override void HandleNextTurn(GameLogic gameLogic)
     {
         if (_isFirstPlayer)
             gameLogic.SetState(gameLogic.secondPlayerState);

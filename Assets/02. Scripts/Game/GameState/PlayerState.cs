@@ -37,11 +37,21 @@ public class PlayerState : BasePlayerState
             // Point가 터치 될 때까지 기다렸다가 터치 되면 처리할 일
             HandleMove(gameLogic, row, col);
         };
+        
+        // 3. Timer 시작 및 이벤트 전달
+        UnityThread.executeInUpdate(() =>
+        {
+            gameLogic.timer.StartTimer(_isFirstPlayer, () =>
+            {
+                gameLogic.EndGame(_isFirstPlayer ? GameLogic.GameResult.Lose : GameLogic.GameResult.Win);
+            });
+        });
     }
 
     public override void OnExit(GameLogic gameLogic)
     {
         gameLogic.pointController.OnPointClickedDelegate = null;
+        gameLogic.timer.StopTimer();
     }
 
     public override void HandleMove(GameLogic gameLogic, int row, int col)
@@ -53,7 +63,7 @@ public class PlayerState : BasePlayerState
         }
     }
 
-    public override void HandleNextTurn(GameLogic gameLogic)
+    protected override void HandleNextTurn(GameLogic gameLogic)
     {
         if (_isFirstPlayer)
         {

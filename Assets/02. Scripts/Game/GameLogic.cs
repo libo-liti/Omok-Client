@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameLogic
 {
     public PointController pointController;         // Point를 처리할 객체
+    public Timer timer;
 
     private Constants.PlayerType[,] _board;         // 보드의 상태 정보
     
@@ -15,21 +16,20 @@ public class GameLogic
     public enum GameResult { None, Win, Lose, Draw }
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
-    private Timer _timer;
     private TMP_Text _resultText;
     Color fontColor = Color.white;
     public MultiplayController _multiplayController;
     private string _roomId;
 
-    public GameLogic(PointController pointController, Constants.GameType gameType)
+    public GameLogic(PointController pointController, Timer timer, Constants.GameType gameType)
     {
         this.pointController = pointController;
+        this.timer = timer;
+        this.timer.StopTimer(); // 타이머 끈 상태로 시작
         
         // 보드의 상태 정보 초기화
         _board = 
             new Constants.PlayerType[Constants.BoardSize, Constants.BoardSize];
-        
-        _timer = GameObject.FindObjectOfType<Timer>(true);
 
         // Game Type 초기화
         switch (gameType)
@@ -89,8 +89,6 @@ public class GameLogic
         _currentPlayerState?.OnExit(this);
         _currentPlayerState = state;
         _currentPlayerState?.OnEnter(this);
-        _timer?.StopTimer();
-        _timer?.StartTimer(state==firstPlayerState,HandleNextTurn);
     }
     
     // _board 배열에 새로운 Marker 값을 할당
@@ -139,9 +137,6 @@ public class GameLogic
 
         // 유저에게 Game Over 표시
         Debug.Log("게임 결과 : " + gameResult);
-        _timer?.StopTimer();
-
-
     }
     
     // 게임의 결과 확인
@@ -157,10 +152,4 @@ public class GameLogic
     {
         _multiplayController.Dispose();
     }
-    
-    public void HandleNextTurn()
-    {
-        _currentPlayerState?.HandleNextTurn(this);
-    }
-
 }

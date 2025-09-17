@@ -84,10 +84,11 @@ public class GameManager : Singleton<GameManager>
         if (scene.name == "Game")
         {
             PointController pointController = FindFirstObjectByType<PointController>();
+            Timer timer = FindFirstObjectByType<Timer>();
             if (pointController != null)
             {
                 pointController.InitPoints();
-                _gameLogic = new GameLogic(pointController, _gameType);
+                _gameLogic = new GameLogic(pointController, timer, _gameType);
                 
                 Debug.Log(_gameType);
             }
@@ -126,10 +127,6 @@ public class GameManager : Singleton<GameManager>
     public void Logout()
     {
         guestName = null;
-    }
-    public void HandleNextTurn()
-    {
-        _gameLogic?.HandleNextTurn();
     }
 
     public void QuitGame()

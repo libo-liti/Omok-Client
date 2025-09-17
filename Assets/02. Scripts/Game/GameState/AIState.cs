@@ -14,10 +14,16 @@ public class AIState : BasePlayerState
         {
             gameLogic.EndGame(GameLogic.GameResult.Draw);
         }
+        
+        gameLogic.timer.StartTimer(false, () =>
+        {
+            gameLogic.EndGame(GameLogic.GameResult.Win);
+        });
     }
 
     public override void OnExit(GameLogic gameLogic)
     {
+        gameLogic.timer.StopTimer();
     }
 
     public override void HandleMove(GameLogic gameLogic, int row, int col)
@@ -25,7 +31,7 @@ public class AIState : BasePlayerState
         ProcessMove(gameLogic, Constants.PlayerType.PlayerB, row, col);
     }
 
-    public override void HandleNextTurn(GameLogic gameLogic)
+    protected override void HandleNextTurn(GameLogic gameLogic)
     {
         gameLogic.SetState(gameLogic.firstPlayerState);
     }
