@@ -84,10 +84,12 @@ public class GameManager : Singleton<GameManager>
         if (scene.name == "Game")
         {
             PointController pointController = FindFirstObjectByType<PointController>();
-            if (pointController != null)
+            EmojiController emojiController = FindFirstObjectByType<EmojiController>();
+            if (pointController != null && emojiController != null)
             {
                 pointController.InitPoints();
-                _gameLogic = new GameLogic(pointController, _gameType);
+                emojiController.Init();
+                _gameLogic = new GameLogic(pointController, emojiController, _gameType);
                 
                 Debug.Log(_gameType);
             }
@@ -147,10 +149,7 @@ public class GameManager : Singleton<GameManager>
     
     private void OnApplicationQuit()
     {
-        if (_gameLogic._multiplayController != null)
-        {
-            _gameLogic?.Dispose();
-            _gameLogic = null;
-        }
+        _gameLogic?.Dispose();
+        _gameLogic = null;
     }
 }

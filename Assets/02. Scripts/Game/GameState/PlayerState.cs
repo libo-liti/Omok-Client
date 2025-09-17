@@ -1,13 +1,11 @@
 using UnityEngine;
 
-using Unity.VisualScripting;
-using UnityEngine;
-
 public class PlayerState : BasePlayerState
 {
     private bool _isFirstPlayer;
     private Constants.PlayerType _playerType;
     private MultiplayController _multiplayController;
+    private EmojiController _emojiController;
 
     private bool _isMultiplay;
     private string _roomId;
@@ -19,11 +17,21 @@ public class PlayerState : BasePlayerState
             Constants.PlayerType.PlayerA :  Constants.PlayerType.PlayerB;
     }
 
-    public PlayerState(bool isFirstPlayer, MultiplayController multiplayController, string roomId) : this(isFirstPlayer)
+    public PlayerState(bool isFirstPlayer, MultiplayController multiplayController, EmojiController emojiController,
+        string roomId) : this(isFirstPlayer)
     {
         _multiplayController = multiplayController;
+        _emojiController = emojiController;
         _roomId = roomId;
         _isMultiplay = true;
+        _emojiController.EmitEmoji = (n) =>
+        {
+            _multiplayController.PlayerEmoji(_roomId, n);
+        };
+        _multiplayController.setEmoji = (n) =>
+        {
+            _emojiController.SetEmoji(n);
+        };
     }
     
     public override void OnEnter(GameLogic gameLogic)
