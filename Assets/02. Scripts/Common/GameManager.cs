@@ -162,4 +162,9 @@ public class GameManager : Singleton<GameManager>
         _gameLogic?.Dispose();
         _gameLogic = null;
     }
+
+    public void DisconnectNetwork()
+    {
+        _gameLogic?.Dispose();
+    }
 }
