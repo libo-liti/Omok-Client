@@ -4,6 +4,11 @@ public class AIState : BasePlayerState
 {
     public override void OnEnter(GameLogic gameLogic)
     {
+        gameLogic.timer.StartTimer(false, () =>
+        {
+            gameLogic.EndGame(GameLogic.GameResult.Win);
+        });
+        
         var board = gameLogic.GetBoard();
         var result = OmokAI.GetBestMove(board);
         if (result.HasValue)
@@ -14,11 +19,6 @@ public class AIState : BasePlayerState
         {
             gameLogic.EndGame(GameLogic.GameResult.Draw);
         }
-        
-        gameLogic.timer.StartTimer(false, () =>
-        {
-            gameLogic.EndGame(GameLogic.GameResult.Win);
-        });
     }
 
     public override void OnExit(GameLogic gameLogic)
