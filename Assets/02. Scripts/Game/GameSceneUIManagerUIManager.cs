@@ -30,11 +30,13 @@ public class GameSceneUIManager : MonoBehaviour
     {
         exitButton.onClick.AddListener(() =>
         {
+            GameManager.Instance.DisconnectNetwork();
             GameManager.Instance.ChangeToMainScene();
         });
         
         surrenderButton.onClick.AddListener(() =>
         {
+            GameManager.Instance.DisconnectNetwork();
             GameManager.Instance.ChangeToMainScene();
         });
     }
