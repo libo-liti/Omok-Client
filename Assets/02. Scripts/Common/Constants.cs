@@ -10,7 +10,7 @@ public static class Constants
         GameStart,
         EndGame
     }
-    public enum GameType { SinglePlay, DualPlay, MultiPlay }
+    public enum GameType { None ,SinglePlay, DualPlay, MultiPlay }
     public enum PlayerType { None, PlayerA, PlayerB }
 
     public const int BoardSize = 15;

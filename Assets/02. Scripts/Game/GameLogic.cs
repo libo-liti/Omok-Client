@@ -20,6 +20,7 @@ public class GameLogic
     Color fontColor = Color.white;
     public MultiplayController _multiplayController;
     private string _roomId;
+    private Constants.GameType _gameType;
 
     public GameLogic(PointController pointController, Timer timer, Constants.GameType gameType)
     {
@@ -115,6 +116,7 @@ public class GameLogic
     // Game Over 처리
     public void EndGame(GameResult gameResult)
     {
+        
         SetState(null);
         firstPlayerState = null;
         secondPlayerState = null;
@@ -134,6 +136,20 @@ public class GameLogic
 
         GameSceneUIManager.Instance.ShowResult(message, fontColor);
         GameSceneUIManager.Instance.ShowButton(gameResult);
+
+        switch (_gameType)
+        {
+            case Constants.GameType.SinglePlay:
+                break;
+            case Constants.GameType.DualPlay:
+                Debug.Log("ddddd");
+                GameSceneUIManager.Instance.RematchCheck();
+                break;
+            case Constants.GameType.MultiPlay:
+                break;
+        }
+        
+        
 
         // 유저에게 Game Over 표시
         Debug.Log("게임 결과 : " + gameResult);

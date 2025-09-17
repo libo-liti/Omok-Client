@@ -7,11 +7,10 @@ public class GameSceneUIManager : MonoBehaviour
 {
     public static GameSceneUIManager Instance; 
 
-    [SerializeField] 
-    private TMP_Text resultText;
+    [SerializeField] private TMP_Text resultText;
 
-    [SerializeField] 
-    private Button exitButton;
+    [SerializeField] private Button exitButton;
+    [SerializeField] private Button surrenderButton;
 
     private void Awake()
     {
@@ -23,11 +22,18 @@ public class GameSceneUIManager : MonoBehaviour
             resultText.gameObject.SetActive(false);
         if (exitButton != null)
             exitButton.gameObject.SetActive(false);
+        if (surrenderButton != null)
+            surrenderButton.gameObject.SetActive(true);
     }
 
     private void Start()
     {
         exitButton.onClick.AddListener(() =>
+        {
+            GameManager.Instance.ChangeToMainScene();
+        });
+        
+        surrenderButton.onClick.AddListener(() =>
         {
             GameManager.Instance.ChangeToMainScene();
         });
@@ -48,6 +54,24 @@ public class GameSceneUIManager : MonoBehaviour
         if (gameResult != GameLogic.GameResult.None)
         {
             exitButton.gameObject.SetActive(true);
+            surrenderButton.interactable = false;
         }
+    }
+    public void OnClickOpenPanel(GameObject panelPrefab)
+    {
+        GameManager.Instance.OpenPanel(panelPrefab);
+    }
+
+    public void RematchCheck()
+    {
+        GameManager.Instance.OpenAskPanel("재경기 하시겠습니까?", () =>
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Game");
+        },() =>
+        {
+            
+        });
+
+        Destroy(gameObject);
     }
 }
