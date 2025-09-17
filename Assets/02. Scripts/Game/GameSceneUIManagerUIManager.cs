@@ -11,6 +11,7 @@ public class GameSceneUIManager : MonoBehaviour
 
     [SerializeField] private Button exitButton;
     [SerializeField] private Button surrenderButton;
+    [SerializeField] private TMP_Text userNameText;
 
     private void Awake()
     {
@@ -28,6 +29,9 @@ public class GameSceneUIManager : MonoBehaviour
 
     private void Start()
     {
+        if (userNameText != null && GameManager.Instance.IsGuestLoggedIn)
+            userNameText.text = GameManager.Instance.GetGuestName();
+        
         exitButton.onClick.AddListener(() =>
         {
             GameManager.Instance.DisconnectNetwork();

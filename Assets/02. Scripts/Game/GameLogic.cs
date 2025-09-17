@@ -34,6 +34,8 @@ public class GameLogic
         // 보드의 상태 정보 초기화
         _board = 
             new Constants.PlayerType[Constants.BoardSize, Constants.BoardSize];
+        
+        _gameType = gameType;
 
         // Game Type 초기화
         switch (gameType)
@@ -143,9 +145,9 @@ public class GameLogic
         switch (_gameType)
         {
             case Constants.GameType.SinglePlay:
+                GameSceneUIManager.Instance.RematchCheck();
                 break;
             case Constants.GameType.DualPlay:
-                Debug.Log("ddddd");
                 GameSceneUIManager.Instance.RematchCheck();
                 break;
             case Constants.GameType.MultiPlay:
