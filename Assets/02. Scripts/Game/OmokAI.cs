@@ -8,7 +8,7 @@ public static class OmokAI
 	private static int[] _dx = { 1, 1, 1, 0 };
 	private static int[] _dy = { -1, 0, 1, 1 };
 
-	public static (int row, int col)? GetBestMove(Constants.PlayerType[,] board)
+	public static (int row, int col)? GetBestMove(Constants.PlayerType[,] board, out int bestScore)
 	{
 		int searchDepth = 3; // 몇 수 앞까지 내다보고 판단할 지 결정
 		List<(int, int)> moves = GenerateCandidateMoves(board, 2);
@@ -19,7 +19,7 @@ public static class OmokAI
 		if (moves.Count > 60)
 			searchDepth = 2;
 		
-		int bestScore = int.MinValue;
+		bestScore = int.MinValue;
 		(int row, int col) bestMove = (-1, -1);
 		foreach (var m in moves)
 		{
@@ -32,7 +32,7 @@ public static class OmokAI
 				bestMove = m;
 			}
 		}
-
+		
 		if (bestMove != (-1, -1))
 		{
 			return bestMove;

@@ -12,10 +12,17 @@ public class AIState : BasePlayerState
         });
         
         var board = gameLogic.GetBoard();
-        var result = OmokAI.GetBestMove(board);
+        var result = OmokAI.GetBestMove(board, out int bestScore);
         if (result.HasValue)
         {
             // HandleMove(gameLogic, result.Value.row, result.Value.col);
+            
+            // AI가 상황에 따라 확률적으로 이모티콘을 사용
+            if (bestScore > 1000000)
+                WaitAndShowEmoji(gameLogic._emojiController, true);
+            else if (bestScore < -1000000)
+                WaitAndShowEmoji(gameLogic._emojiController, false);
+                
             WaitAndProceed(gameLogic, result.Value.row, result.Value.col);
         }
         else
@@ -54,5 +61,21 @@ public class AIState : BasePlayerState
         await Task.Delay(randomMilliseconds);
         
         HandleMove(gameLogic, row, col);
+    }
+
+    private async void WaitAndShowEmoji(EmojiController emojiController, bool isWin)
+    {
+        int random = Random.Range(0, 100);
+        if (random < 75)
+            return;
+        
+        await Task.Delay(500);
+
+        int[] winEmoji = { 1, 3, 5, 9, 14 };
+        int[] loseEmoji = { 2, 8, 10, 11, 12 };
+        
+        int randomIndex = Random.Range(0, 5);
+        int emojiIndex = isWin ? winEmoji[randomIndex] : loseEmoji[randomIndex];
+        emojiController.SetEmoji(emojiIndex);
     }
 }
