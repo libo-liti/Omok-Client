@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using System.Text.RegularExpressions;
+using UnityEngine.UI;
 
 public class JoinController : MonoBehaviour
 {
@@ -10,12 +11,26 @@ public class JoinController : MonoBehaviour
     [SerializeField] private TMP_InputField passwordField;
     [SerializeField] private TMP_InputField confirmPasswordField;
 
+    [SerializeField] private Button emailCheck;
     [SerializeField] private AuthenticationManager _authenticationManager;
-        
+    
     private void Start()
     {
         _authenticationManager = GameObject.Find("NetworkManager").GetComponent<AuthenticationManager>();
         _authenticationManager.joinController = this;
+    }
+
+    public void OnClickEmailCheckButton()
+    {
+        string email = emailField.text.Trim();
+        // if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.(com|co\.kr)$"))
+        // {
+        //     GameManager.Instance.OpenConfirmPanel("이메일 형식이 올바르지 않습니다. \n(.com 또는 co.kr 형식인지 확인해 주세요)", null);
+        //     return;
+        // }
+
+        Debug.Log(email);
+        _authenticationManager.OnUsernameCheckButtonClicked(email);
     }
 
     public void OnClickJoinButton()
