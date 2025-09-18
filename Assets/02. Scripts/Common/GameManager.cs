@@ -137,15 +137,23 @@ public class GameManager : Singleton<GameManager>
         if (gameSelectPanel != null) gameSelectPanel.SetActive(true);*/
         
         //로그인 여부 판단을 위해서 임시 생성 언제활용할지 모르니 일단 랜던아이디만 부여
-        // 활용한다면 나중에 중복 확인도 필요할듯?
+        // 활용한다면 나중에 중복 확인도 필요할듯? -> 0917 17:00 조금 수정
         guestName = "비회원_" + UnityEngine.Random.Range(1000, 9999);
         Debug.Log(guestName);
     }
+    
+    
 
     public void Logout()
     {
         guestName = null;
     }
+    
+    public string GetGuestName()
+    {
+        return guestName;
+    }
+
 
     public void QuitGame()
     {

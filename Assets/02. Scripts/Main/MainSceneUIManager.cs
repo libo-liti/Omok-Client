@@ -1,9 +1,11 @@
+using TMPro;
 using UnityEngine;
 
 public class MainSceneUIManager : MonoBehaviour
 {
     [SerializeField] private GameObject loginPanel;
     [SerializeField] private GameObject gameSelectPanel;
+    [SerializeField] private TMP_Text userNameText;
 
     private void Start()
     {
@@ -36,16 +38,13 @@ public class MainSceneUIManager : MonoBehaviour
 
     private void RefreshUI()
     {
-        if (GameManager.Instance.IsGuestLoggedIn)
-        {
-            loginPanel.SetActive(false);
-            gameSelectPanel.SetActive(true);
-        }
-        else
-        {
-            loginPanel.SetActive(true);
-            gameSelectPanel.SetActive(false);
-        }
+        bool isGuest = GameManager.Instance.IsGuestLoggedIn;
+
+        loginPanel.SetActive(!isGuest);
+        gameSelectPanel.SetActive(isGuest);
+
+        if (userNameText != null)
+            userNameText.text = isGuest ? GameManager.Instance.GetGuestName() : "";
     }
 }
 
