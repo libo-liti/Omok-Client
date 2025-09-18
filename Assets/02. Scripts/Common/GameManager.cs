@@ -13,7 +13,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private GameObject askPanel; // 여부 묻기 패널
     [SerializeField] private GameObject gameSelectPanel; //게임 선택화면
     
-    private string guestName = null;
+    public string guestName = null;
     public bool IsGuestLoggedIn => !string.IsNullOrEmpty(guestName);
 
 
@@ -135,7 +135,10 @@ public class GameManager : Singleton<GameManager>
         
         //로그인 여부 판단을 위해서 임시 생성 언제활용할지 모르니 일단 랜던아이디만 부여
         // 활용한다면 나중에 중복 확인도 필요할듯?
-        guestName = "비회원_" + UnityEngine.Random.Range(1000, 9999);
+        if (string.IsNullOrEmpty(guestName))
+        {
+            guestName = "비회원_" + UnityEngine.Random.Range(1000, 9999);
+        }
         Debug.Log(guestName);
     }
 

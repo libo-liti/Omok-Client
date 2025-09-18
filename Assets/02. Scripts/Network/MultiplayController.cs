@@ -55,6 +55,8 @@ public class MultiplayController
     private void OnServerConnected(object sender, EventArgs e)
     {
         Debug.Log("서버에 연결되었습니다");
+        string nickname = GameManager.Instance.guestName;
+        socket.Emit("registerNickname", new {nickname = nickname});
     }
 
     private void OnServerDisconnected(object sender, string e)
