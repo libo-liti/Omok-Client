@@ -8,7 +8,8 @@ public static class Constants
         CreateRoom,
         JoinRoom,
         GameStart,
-        EndGame
+        EndGame,
+        ExitRoom
     }
     public enum GameType { None ,SinglePlay, DualPlay, MultiPlay }
     public enum PlayerType { None, PlayerA, PlayerB }
