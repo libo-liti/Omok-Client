@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public static class OmokAI
@@ -8,7 +10,7 @@ public static class OmokAI
 	private static int[] _dx = { 1, 1, 1, 0 };
 	private static int[] _dy = { -1, 0, 1, 1 };
 
-	public static (int row, int col)? GetBestMove(Constants.PlayerType[,] board)
+	public static (int row, int col)? GetBestMove(Constants.PlayerType[,] board, out int bestScore)
 	{
 		int searchDepth = 3; // 몇 수 앞까지 내다보고 판단할 지 결정
 		List<(int, int)> moves = GenerateCandidateMoves(board, 2);
@@ -19,7 +21,7 @@ public static class OmokAI
 		if (moves.Count > 60)
 			searchDepth = 2;
 		
-		int bestScore = int.MinValue;
+		bestScore = int.MinValue;
 		(int row, int col) bestMove = (-1, -1);
 		foreach (var m in moves)
 		{
@@ -32,7 +34,7 @@ public static class OmokAI
 				bestMove = m;
 			}
 		}
-
+		
 		if (bestMove != (-1, -1))
 		{
 			return bestMove;
@@ -248,27 +250,28 @@ public static class OmokAI
 		{
 			if (openEnds == 2) return 120000; // open four
 			if (openEnds == 1) return 12000; // closed four (one side blocked)
-			return 8000;
+			return 0;
 		}
 
 		if (consecutive == 3)
 		{
 			if (openEnds == 2) return 8000; // open three
 			if (openEnds == 1) return 800; // closed three
-			return 100;
+			return 0;
 		}
 
 		if (consecutive == 2)
 		{
 			if (openEnds == 2) return 300; // open two
 			if (openEnds == 1) return 30;
-			return 5;
+			return 0;
 		}
 
 		if (consecutive == 1)
 		{
 			if (openEnds == 2) return 10;
-			return 1;
+			if (openEnds == 1) return 1;
+			return 0;
 		}
 
 		return 0;
@@ -284,34 +287,6 @@ public static class OmokAI
 
 		for (int i = 0; i < 4; i++)
 		{
-			// int count = 1;
-			//
-			// // 순방향
-			// for (int j = 1; j <= 5; j++)
-			// {
-			// 	int nx = x + _dx[i] * j;
-			// 	int ny = y + _dy[i] * j;
-			//
-			// 	if (nx < 0 || board.GetLength(0) <= nx || ny < 0 || board.GetLength(1) <= ny)
-			// 		break;
-			// 	if (board[ny, nx] != player)
-			// 		break;
-			// 	count++;
-			// }
-			//
-			// // 역방향
-			// for (int j = 1; j <= 5; j++)
-			// {
-			// 	int nx = x - _dx[i] * j;
-			// 	int ny = y - _dy[i] * j;
-			//
-			// 	if (nx < 0 || board.GetLength(0) <= nx || ny < 0 || board.GetLength(1) <= ny)
-			// 		break;
-			// 	if (board[ny, nx] != player)
-			// 		break;
-			// 	count++;
-			// }
-			
 			// 본인의 돌의 몇개 이어져있는지 숫자를 센다
 			int dx = _dx[i];
 			int dy = _dy[i];
@@ -345,4 +320,127 @@ public static class OmokAI
 
 		return true;
 	}
+
+	#region 렌주룰
+	
+	public static bool[,] IsForbidden(Constants.PlayerType[,] board)
+	{
+		bool[,] b = new bool[Constants.BoardSize, Constants.BoardSize];
+		
+		for (int i = 0; i < board.GetLength(0); i++)
+		{
+			for (int j = 0; j < board.GetLength(1); j++)
+			{
+				if (board[i, j] != Constants.PlayerType.None)
+					continue;
+				
+				int count_ThreeThree = 0;
+				int count_FourFour = 0;
+				
+				for (int k = 0; k < 4; k++)
+				{
+					string line = GetLine(board, i, j, _dx[k], _dy[k]);
+					if (IsMoreThanFive(line))
+					{
+						b[i, j] = true;
+						break;
+					}
+					
+					if (IsThreeThree(line))	
+						count_ThreeThree++;
+					
+					if (IsFourFour(line))
+						count_FourFour++;
+				}
+
+				if (count_ThreeThree >= 2 || count_FourFour >= 2)
+					b[i, j] = true;
+			}
+		}
+	
+		return b;
+	}
+	
+	static string GetLine(Constants.PlayerType[,] board, int x, int y, int dx, int dy)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.Append("O");
+	
+		// 전방 (한 방향)
+		int nx = x + dx;
+		int ny = y + dy;
+		for (int i = 1; i < 6; i++)
+		{
+			if (IsInBoard(nx, ny) == false) break;
+			
+			if (board[nx, ny] == Constants.PlayerType.PlayerA)
+			{
+				sb.Append("O");
+				nx += dx;
+				ny += dy;
+			}
+			else if (board[nx, ny] == Constants.PlayerType.None)
+			{
+				sb.Append("-");
+				nx += dx;
+				ny += dy;
+			}
+			else
+			{
+				sb.Append("X");
+				break;
+			}
+		}
+	
+		// 후방 (반대 방향)
+		// firstBlank = false;
+		nx = x - dx;
+		ny = y - dy;
+	
+		for (int i = 1; i < 6; i++)
+		{
+			if (IsInBoard(nx, ny) == false) break;
+
+			if (board[nx, ny] == Constants.PlayerType.PlayerA)
+			{
+				sb.Insert(0, "O");
+				nx -= dx;
+				ny -= dy;
+			}
+			else if (board[nx, ny] == Constants.PlayerType.None)
+			{
+				sb.Insert(0, "-");
+				nx -= dx;
+				ny -= dy;
+			}
+			else
+			{
+				sb.Insert(0, "X");
+				break;
+			}
+		}
+	
+		return sb.ToString();
+	}
+
+	static bool IsThreeThree(string line)
+	{
+		return line.Contains("-OOO-") || line.Contains("-O-OO-") || line.Contains("-OO-O-");
+	}
+	
+	static bool IsFourFour(string line)
+	{
+		bool containFour = line.Contains("OOOO") || line.Contains("O-OOO") || line.Contains("OO-OO") ||
+		                   line.Contains("OOO-O");
+		bool notContainFive = line.Contains("OOOOO") == false;
+		
+		return containFour && notContainFive;
+	}
+	
+	static bool IsMoreThanFive(string line)
+	{
+		return line.Contains("OOOOOO");
+	}
+	
+	#endregion
 }

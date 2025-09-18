@@ -5,14 +5,15 @@ using UnityEngine.SceneManagement;
 public class GameManager : Singleton<GameManager>
 {
     // Main Scene에서 선택한 게임 타입
-    [SerializeField] private Constants.GameType _gameType = Constants.GameType.DualPlay;
+    public Constants.GameType _gameType = Constants.GameType.DualPlay;
 
     /*[SerializeField] private GameObject optionPanel; //설정 메뉴 패널*/
     [SerializeField] private GameObject confirmPanel; //안내 패널
     [SerializeField] private GameObject loginPanel; //로그인 화면
+    [SerializeField] private GameObject askPanel; // 여부 묻기 패널
     [SerializeField] private GameObject gameSelectPanel; //게임 선택화면
     
-    private string guestName = null;
+    public string guestName = null;
     public bool IsGuestLoggedIn => !string.IsNullOrEmpty(guestName);
 
 
@@ -84,10 +85,16 @@ public class GameManager : Singleton<GameManager>
         if (scene.name == "Game")
         {
             PointController pointController = FindFirstObjectByType<PointController>();
-            if (pointController != null)
+            Timer timer = FindFirstObjectByType<Timer>();
+            EmojiController emojiController = FindFirstObjectByType<EmojiController>();
+            RenjuController renjuController = FindFirstObjectByType<RenjuController>();
+            if (pointController != null && emojiController != null && renjuController != null)
             {
                 pointController.InitPoints();
-                _gameLogic = new GameLogic(pointController, _gameType);
+                emojiController.Init();
+                renjuController.Init();
+                
+                _gameLogic = new GameLogic(pointController, emojiController, renjuController, timer, _gameType);
                 
                 Debug.Log(_gameType);
             }
@@ -111,6 +118,17 @@ public class GameManager : Singleton<GameManager>
                 .Show(message, onConfirm);
         }
     }
+    
+    public void OpenAskPanel(string message, System.Action yes, System.Action no)
+    {
+        if (_canvas != null && askPanel != null)
+        {
+            var askPanelObject = Instantiate(askPanel, _canvas.transform);
+            askPanelObject.GetComponent<AskPanelController>()
+                .Show(message, yes, no);
+        }
+    }
+
 
     public void GuestLogin()
     {
@@ -118,19 +136,27 @@ public class GameManager : Singleton<GameManager>
         /*if (loginPanel != null) loginPanel.SetActive(false);
         if (gameSelectPanel != null) gameSelectPanel.SetActive(true);*/
         
-        //로그인 여부 판단을 위해서 임시 생성
-        guestName = "비회원_" + UnityEngine.Random.Range(1000, 9999);
+        //로그인 여부 판단을 위해서 임시 생성 언제활용할지 모르니 일단 랜던아이디만 부여
+        // 활용한다면 나중에 중복 확인도 필요할듯?
+        if (string.IsNullOrEmpty(guestName))
+        {
+            guestName = "비회원_" + UnityEngine.Random.Range(1000, 9999);
+        }
         Debug.Log(guestName);
     }
+    
+    
 
     public void Logout()
     {
         guestName = null;
     }
-    public void HandleNextTurn()
+    
+    public string GetGuestName()
     {
-        _gameLogic?.HandleNextTurn();
+        return guestName;
     }
+
 
     public void QuitGame()
     {
@@ -147,10 +173,7 @@ public class GameManager : Singleton<GameManager>
     
     private void OnApplicationQuit()
     {
-        if (_gameLogic._multiplayController != null)
-        {
-            _gameLogic?.Dispose();
-            _gameLogic = null;
-        }
+        _gameLogic?.Dispose();
+        _gameLogic = null;
     }
 }

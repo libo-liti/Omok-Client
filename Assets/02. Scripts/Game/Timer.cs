@@ -1,11 +1,12 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class Timer : MonoBehaviour
 {
     [SerializeField] private TMP_Text timerText;   // 3D TMP 전용
-
+    [SerializeField] private Image timerBackgroundImage; //타이머 배경
     [SerializeField] private float timeLimit = 30f;     // 기본 시간
     private UnityAction onTimerEnd;     // 시간이 끝났을 때 실행할 이벤트
 
@@ -29,8 +30,9 @@ public class Timer : MonoBehaviour
         timeRemaining = timeLimit;
         isRunning = true;
         gameObject.SetActive(true);
-        timerText.color = first? Color.black:Color.white;
-        
+        timerText.color = first? Color.white:Color.black;
+        timerBackgroundImage.color = first? Color.black:Color.white;
+            
     }
     
     public void StopTimer()
@@ -38,6 +40,7 @@ public class Timer : MonoBehaviour
         isRunning = false;
         if (timerText != null) timerText.text = "";
         gameObject.SetActive(false);
+        
     }
 
     private void Update()

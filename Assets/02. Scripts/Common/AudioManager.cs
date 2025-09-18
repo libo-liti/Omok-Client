@@ -4,21 +4,25 @@ using UnityEngine.SceneManagement;
 public class AudioManager : Singleton<AudioManager>
 {
     [SerializeField] private AudioSource bgmSource; // BGM
-    [SerializeField] private AudioClip bgmClip;  
+    [SerializeField] private AudioClip lobbyBgmClip;  
     [SerializeField] private AudioSource seSource;  // SE 
+    [SerializeField] private AudioClip gameBgmClip;
     [SerializeField] private AudioClip placeStoneClip;
     
     protected override void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "Main")
         {
-            Debug.Log("1M");
+            if (bgmSource != null && bgmSource.isPlaying)
+            {
+                bgmSource.Stop();
+            }
             // 메인씬 BGM ON
-            if (bgmSource != null && bgmClip != null)
+            if (bgmSource != null && lobbyBgmClip != null)
             {
                 if (!bgmSource.isPlaying)
                 {
-                    bgmSource.clip = bgmClip;
+                    bgmSource.clip = lobbyBgmClip;
                     bgmSource.loop = true;
                     bgmSource.Play();
                 }
@@ -26,11 +30,17 @@ public class AudioManager : Singleton<AudioManager>
         }
         else if (scene.name == "Game")
         {
-            Debug.Log("1G");
             // 게임씬 BGM OFF
             if (bgmSource != null && bgmSource.isPlaying)
             {
                 bgmSource.Stop();
+            }
+
+            if (bgmSource != null && lobbyBgmClip != null)
+            {
+                bgmSource.clip = gameBgmClip;
+                bgmSource.loop = true;
+                bgmSource.Play();
             }
         }
     }
@@ -64,9 +74,9 @@ public class AudioManager : Singleton<AudioManager>
         
          float seVolume = PlayerPrefs.GetFloat("SEVolume", 0.5f);
          SetSEVolume(seVolume);
-        if (bgmSource != null && bgmClip != null)
+        if (bgmSource != null && lobbyBgmClip != null)
         {
-            bgmSource.clip = bgmClip;
+            bgmSource.clip = lobbyBgmClip;
             bgmSource.loop = true;
             bgmSource.Play();
         }

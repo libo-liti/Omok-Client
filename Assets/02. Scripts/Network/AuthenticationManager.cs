@@ -13,6 +13,7 @@ public class AuthResponse
     public bool success;
     public string message;
     public string result;
+    public string nickname;
 }
 
 [System.Serializable]
@@ -34,8 +35,7 @@ public class AuthenticationManager : MonoBehaviour
 {
     public string username;
     public string password;
-    public string nickname; // 닉네임 입력 필드 추가
-    // public TextMeshProUGUI resultText;
+    public string nickname;
     
     public void OnSignupButtonClicked()
     {
@@ -90,15 +90,17 @@ public class AuthenticationManager : MonoBehaviour
             
             if (www.result != UnityWebRequest.Result.Success)
             {
-                // resultText.text = authResponse.message;
                 Debug.Log("로그인 실패!");
             }
             else
             {
-                // resultText.text = authResponse.message;
                 if (endpoint == "api/login" && authResponse.success)
                 {
                     Debug.Log("로그인 성공! 게임 시작 화면으로 전환합니다.");
+                    if (!string.IsNullOrEmpty(authResponse.nickname))
+                    {
+                        GameManager.Instance.guestName = authResponse.nickname;
+                    }
                 }
             }
         }

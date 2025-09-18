@@ -6,7 +6,10 @@ using UnityEngine;
 public class GameLogic
 {
     public PointController pointController;         // Point를 처리할 객체
-
+    public EmojiController _emojiController;
+    public RenjuController renjuController;
+    public Timer timer;
+    
     private Constants.PlayerType[,] _board;         // 보드의 상태 정보
     
     public BasePlayerState firstPlayerState;        // Player A
@@ -15,21 +18,25 @@ public class GameLogic
     public enum GameResult { None, Win, Lose, Draw }
     
     private BasePlayerState _currentPlayerState;    // 현재 턴의 Player
-    private Timer _timer;
     private TMP_Text _resultText;
     Color fontColor = Color.white;
     public MultiplayController _multiplayController;
     private string _roomId;
+    private Constants.GameType _gameType;
 
-    public GameLogic(PointController pointController, Constants.GameType gameType)
+    public GameLogic(PointController pointController, EmojiController emojiController, RenjuController renjuController, Timer timer, Constants.GameType gameType)
     {
         this.pointController = pointController;
+        this.timer = timer;
+        this.timer.StopTimer(); // 타이머 끈 상태로 시작
+        _emojiController = emojiController;
+        this.renjuController = renjuController;
         
         // 보드의 상태 정보 초기화
         _board = 
             new Constants.PlayerType[Constants.BoardSize, Constants.BoardSize];
         
-        _timer = GameObject.FindObjectOfType<Timer>(true);
+        _gameType = gameType;
 
         // Game Type 초기화
         switch (gameType)
@@ -50,25 +57,37 @@ public class GameLogic
                 _multiplayController = new MultiplayController((state, roomId) =>
                 {
                     _roomId = roomId;
-                    Debug.Log($"state : {state}");
                     switch (state)
                     {
                         case Constants.MultiplayControllerState.CreateRoom:
                             Debug.Log("## CreateRoom ##");
-                            firstPlayerState = new PlayerState(true, _multiplayController, _roomId);
+                            firstPlayerState = new PlayerState(true, _multiplayController, _emojiController, _roomId);
                             secondPlayerState = new MultiplayerState(false, _multiplayController);
-                            SetState(firstPlayerState);
+                            // SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.JoinRoom:
                             Debug.Log("## JoinRoom ##");
                             firstPlayerState = new MultiplayerState(true, _multiplayController);
-                            secondPlayerState = new PlayerState(false, _multiplayController, _roomId);
-                            SetState(firstPlayerState);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _emojiController, _roomId);
+                            // SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.GameStart:
                             Debug.Log("## GameStart ##");
+                            SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.EndGame:
+                            if (_currentPlayerState != null)
+                            {
+                                Debug.Log("상대가 기권");
+                                var result = (firstPlayerState is PlayerState) ? GameResult.Win : GameResult.Lose;
+                                EndGame(result);
+                            }
+                            break;
+                        case Constants.MultiplayControllerState.ExitRoom:
+                            Dispose(() =>
+                            {
+                                GameManager.Instance.ChangeToMainScene();
+                            });
                             break;
                     }
                 });
@@ -89,8 +108,6 @@ public class GameLogic
         _currentPlayerState?.OnExit(this);
         _currentPlayerState = state;
         _currentPlayerState?.OnEnter(this);
-        _timer?.StopTimer();
-        _timer?.StartTimer(state==firstPlayerState,HandleNextTurn);
     }
     
     // _board 배열에 새로운 Marker 값을 할당
@@ -105,13 +122,32 @@ public class GameLogic
             pointController.PlaceMaker(Point.MarkerType.Black, row, col);
             return true;
         }
-        else if (playerType == Constants.PlayerType.PlayerB)
+        
+        if (playerType == Constants.PlayerType.PlayerB)
         {
             _board[row, col] = playerType;
             pointController.PlaceMaker(Point.MarkerType.White, row, col);
             return true;
         }        
         return false;
+    }
+
+    // 금수 위치에 X 표시 활성화
+    public void SetForbiddenPoint(bool[,] xPoints)
+    {
+        for (int i = 0; i < Constants.BoardSize; i++)
+        {
+            for (int j = 0; j < Constants.BoardSize; j++)
+            {
+                if (xPoints[i, j]) renjuController.ShowX(i, j);
+            }
+        }
+    }
+    
+    // 모든 금수 표시 숨기기
+    public void RemoveAllForbiddenPoint()
+    {
+        renjuController.HideAll();
     }
     
     // Game Over 처리
@@ -137,11 +173,17 @@ public class GameLogic
         GameSceneUIManager.Instance.ShowResult(message, fontColor);
         GameSceneUIManager.Instance.ShowButton(gameResult);
 
-        // 유저에게 Game Over 표시
-        Debug.Log("게임 결과 : " + gameResult);
-        _timer?.StopTimer();
-
-
+        switch (_gameType)
+        {
+            case Constants.GameType.SinglePlay:
+                GameSceneUIManager.Instance.RematchCheck();
+                break;
+            case Constants.GameType.DualPlay:
+                GameSceneUIManager.Instance.RematchCheck();
+                break;
+            case Constants.GameType.MultiPlay:
+                break;
+        }
     }
     
     // 게임의 결과 확인
@@ -155,12 +197,10 @@ public class GameLogic
 
     public void Dispose()
     {
-        _multiplayController.Dispose();
+        _multiplayController?.Dispose();
     }
-    
-    public void HandleNextTurn()
+    public void Dispose(Action onComplete)
     {
-        _currentPlayerState?.HandleNextTurn(this);
+        _multiplayController?.Dispose(onComplete);
     }
-
 }
