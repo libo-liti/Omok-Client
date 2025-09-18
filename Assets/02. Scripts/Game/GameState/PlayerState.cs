@@ -31,7 +31,7 @@ public class PlayerState : BasePlayerState
         };
         _multiplayController.setEmoji = (n) =>
         {
-            _emojiController.SetEmoji(n);
+            _emojiController.SetEmoji(n, false);
         };
     }
     
