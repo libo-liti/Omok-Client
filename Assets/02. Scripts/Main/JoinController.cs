@@ -48,13 +48,14 @@ public class JoinController : MonoBehaviour
             return;
         }
         
-        GameManager.Instance.OpenConfirmPanel("회원가입이 완료되었습니다!", () =>
-        {
-            emailField.text = "";
-            nicknameField.text = "";
-            passwordField.text = "";
-            confirmPasswordField.text = "";
-        });
+        // GameManager.Instance.OpenConfirmPanel("회원가입이 완료되었습니다!", () =>
+        // {
+        //     emailField.text = "";
+        //     nicknameField.text = "";
+        //     passwordField.text = "";
+        //     confirmPasswordField.text = "";
+        // });
+        
         if (_authenticationManager != null)
         {
             _authenticationManager.username = email;
@@ -64,7 +65,7 @@ public class JoinController : MonoBehaviour
         
         _authenticationManager.OnSignupButtonClicked();
         
-        Destroy(gameObject);
+        // Destroy(gameObject);
     }
 
     public void OnClickCancelButton()

@@ -1,11 +1,8 @@
-using System;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
 using TMPro;
-using UnityEngine.Serialization;
 
 [System.Serializable]
 public class AuthResponse
@@ -33,6 +30,11 @@ public class SigninData
 
 public class AuthenticationManager : MonoBehaviour
 {
+    public MainSceneUIManager mainSceneUIManager;
+    
+    public TMP_InputField emailField;
+    public TMP_InputField passwordInputField;
+    
     public string username;
     public string password;
     public string nickname;
@@ -88,18 +90,50 @@ public class AuthenticationManager : MonoBehaviour
             string responseText = www.downloadHandler.text;
             AuthResponse authResponse = JsonUtility.FromJson<AuthResponse>(responseText);
             
-            if (www.result != UnityWebRequest.Result.Success)
+            // 네트워크 접속
+            if (www.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("로그인 실패!");
+                Debug.Log("네트워크 성공");
+                if (endpoint == "api/login" && authResponse.success)
+                {
+                    GameManager.Instance.guestName = authResponse.nickname;
+                    mainSceneUIManager.RefreshUI();
+                }
             }
             else
             {
-                if (endpoint == "api/login" && authResponse.success)
+                Debug.Log("네트워크 실패");
+                if (endpoint == "api/login")
                 {
-                    Debug.Log("로그인 성공! 게임 시작 화면으로 전환합니다.");
-                    if (!string.IsNullOrEmpty(authResponse.nickname))
+                    if (authResponse.result == "id")
                     {
-                        GameManager.Instance.guestName = authResponse.nickname;
+                        GameManager.Instance.OpenConfirmPanel("아이디가 일치하지 않습니다.", () =>
+                        {
+                            emailField.text = "";
+                            passwordInputField.text = "";
+                        });
+                    }
+                    else if (authResponse.result == "password")
+                    {
+                        GameManager.Instance.OpenConfirmPanel("비밀번호가 일치하지 않습니다.", () =>
+                        {
+                            passwordInputField.text = "";
+                        });
+                    }
+                    else
+                        Debug.Log("로그인 실패 : " + www.error);
+                }
+                else if (endpoint == "api/signup")
+                {
+                    Debug.Log("회원가입 실패");
+                    Debug.Log(authResponse.message);
+                    if (authResponse.result == "id")
+                    {
+                        Debug.Log("회원가입 아이디");
+                        GameManager.Instance.OpenConfirmPanel("해당 아이디가 이미 있습니다.", () =>
+                        {
+                            Debug.Log("아이디 중복");
+                        });
                     }
                 }
             }
