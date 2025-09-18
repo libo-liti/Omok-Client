@@ -250,27 +250,28 @@ public static class OmokAI
 		{
 			if (openEnds == 2) return 120000; // open four
 			if (openEnds == 1) return 12000; // closed four (one side blocked)
-			return 8000;
+			return 0;
 		}
 
 		if (consecutive == 3)
 		{
 			if (openEnds == 2) return 8000; // open three
 			if (openEnds == 1) return 800; // closed three
-			return 100;
+			return 0;
 		}
 
 		if (consecutive == 2)
 		{
 			if (openEnds == 2) return 300; // open two
 			if (openEnds == 1) return 30;
-			return 5;
+			return 0;
 		}
 
 		if (consecutive == 1)
 		{
 			if (openEnds == 2) return 10;
-			return 1;
+			if (openEnds == 1) return 1;
+			return 0;
 		}
 
 		return 0;
