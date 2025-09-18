@@ -15,6 +15,7 @@ public class JoinController : MonoBehaviour
     private void Start()
     {
         _authenticationManager = GameObject.Find("NetworkManager").GetComponent<AuthenticationManager>();
+        _authenticationManager.joinController = this;
     }
 
     public void OnClickJoinButton()
@@ -74,5 +75,6 @@ public class JoinController : MonoBehaviour
         nicknameField.text = "";
         passwordField.text = "";
         confirmPasswordField.text = "";
+        Destroy(gameObject);
     }
 }

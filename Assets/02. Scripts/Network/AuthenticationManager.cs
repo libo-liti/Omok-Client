@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
 using TMPro;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class AuthResponse
@@ -31,6 +32,7 @@ public class SigninData
 public class AuthenticationManager : MonoBehaviour
 {
     public MainSceneUIManager mainSceneUIManager;
+    public JoinController joinController;
     
     public TMP_InputField emailField;
     public TMP_InputField passwordInputField;
@@ -93,16 +95,21 @@ public class AuthenticationManager : MonoBehaviour
             // 네트워크 접속
             if (www.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("네트워크 성공");
                 if (endpoint == "api/login" && authResponse.success)
                 {
                     GameManager.Instance.guestName = authResponse.nickname;
                     mainSceneUIManager.RefreshUI();
                 }
+                else if (endpoint == "api/signup")
+                {
+                    GameManager.Instance.OpenConfirmPanel("회원가입에 성공하셨습니다.", () =>
+                    {
+                        joinController.OnClickCancelButton();
+                    });
+                }
             }
             else
             {
-                Debug.Log("네트워크 실패");
                 if (endpoint == "api/login")
                 {
                     if (authResponse.result == "id")
@@ -125,14 +132,10 @@ public class AuthenticationManager : MonoBehaviour
                 }
                 else if (endpoint == "api/signup")
                 {
-                    Debug.Log("회원가입 실패");
-                    Debug.Log(authResponse.message);
                     if (authResponse.result == "id")
                     {
-                        Debug.Log("회원가입 아이디");
                         GameManager.Instance.OpenConfirmPanel("해당 아이디가 이미 있습니다.", () =>
                         {
-                            Debug.Log("아이디 중복");
                         });
                     }
                 }
