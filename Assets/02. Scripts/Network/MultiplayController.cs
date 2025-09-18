@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using SocketIOClient;
 using UnityEngine;
 
@@ -92,7 +93,10 @@ public class MultiplayController
     {
         var data = JsonUtility.FromJson<GameStartData>(response.GetValue().GetRawText());
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayControllerState.GameStart, data.room);
-        Debug.Log($"[게임 시작] 방 ID: {data.room}, 플레이어1: {data.player1}, 플레이어2: {data.player2}");
+
+        GameSceneUIManager.Instance.opponentNameText.text =
+            (GameManager.Instance.guestName == data.player1) ? data.player2 : data.player1;
+        
         GameSceneUIManager.Instance.SurrenderAction = () =>
         {
             socket.Emit("surrender", new { room = data.room });

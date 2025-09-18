@@ -6,6 +6,8 @@ public class MainSceneUIManager : MonoBehaviour
     [SerializeField] private GameObject loginPanel;
     [SerializeField] private GameObject gameSelectPanel;
     [SerializeField] private TMP_Text userNameText;
+    [SerializeField] private TMP_InputField emailField;
+    [SerializeField] private TMP_InputField passwordInputField;
 
     private void Start()
     {
@@ -20,6 +22,8 @@ public class MainSceneUIManager : MonoBehaviour
 
     public void OnClickLogout()
     {
+        emailField.text = "";
+        passwordInputField.text = "";
         GameManager.Instance.Logout();
         RefreshUI();
     }
@@ -36,7 +40,7 @@ public class MainSceneUIManager : MonoBehaviour
         RefreshUI();
     }
 
-    private void RefreshUI()
+    public void RefreshUI()
     {
         bool isGuest = GameManager.Instance.IsGuestLoggedIn;
 

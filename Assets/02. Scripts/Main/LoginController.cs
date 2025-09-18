@@ -39,6 +39,8 @@ public class LoginController : MonoBehaviour
 
         _authenticationManager.username = username;
         _authenticationManager.password = password;
+        _authenticationManager.emailField = emailField;
+        _authenticationManager.passwordInputField = passwordInputField;
 
         _authenticationManager.OnLoginButtonClicked();
     }

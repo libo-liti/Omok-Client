@@ -15,6 +15,7 @@ public class GameSceneUIManager : MonoBehaviour
     [SerializeField] private Button exitButton;
     [SerializeField] private Button surrenderButton;
     [SerializeField] private TMP_Text userNameText;
+    public TMP_Text opponentNameText;
 
     private void Awake()
     {
