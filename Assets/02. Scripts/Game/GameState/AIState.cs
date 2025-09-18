@@ -4,12 +4,21 @@ using UnityEngine;
 
 public class AIState : BasePlayerState
 {
+    private bool _isFirstPlayer;
+    private Constants.PlayerType _playerType;
+    public AIState(bool isFirstPlayer)
+    {
+        _isFirstPlayer = isFirstPlayer;
+        _playerType = _isFirstPlayer ? Constants.PlayerType.PlayerA : Constants.PlayerType.PlayerB;
+    }
+
     public override void OnEnter(GameLogic gameLogic)
     {
-        gameLogic.timer.StartTimer(false, () =>
+        gameLogic.timer.StartTimer(_isFirstPlayer, () =>
         {
-            gameLogic.EndGame(GameLogic.GameResult.Win);
+            gameLogic.EndGame(_isFirstPlayer ? GameLogic.GameResult.Lose : GameLogic.GameResult.Win);
         });
+
         
         var board = gameLogic.GetBoard();
         var result = OmokAI.GetBestMove(board, out int bestScore);
@@ -36,12 +45,16 @@ public class AIState : BasePlayerState
 
     public override void HandleMove(GameLogic gameLogic, int row, int col)
     {
-        ProcessMove(gameLogic, Constants.PlayerType.PlayerB, row, col);
+        ProcessMove(gameLogic, _playerType, row, col);
     }
 
     protected override void HandleNextTurn(GameLogic gameLogic)
     {
-        gameLogic.SetState(gameLogic.firstPlayerState);
+        if (_isFirstPlayer)
+            gameLogic.SetState(gameLogic.secondPlayerState);
+        else
+            gameLogic.SetState(gameLogic.firstPlayerState);
+
     }
 
     private async void WaitAndProceed(GameLogic gameLogic, int row, int col)

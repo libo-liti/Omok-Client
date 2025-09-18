@@ -42,11 +42,22 @@ public class GameLogic
         switch (gameType)
         {
             case Constants.GameType.SinglePlay:
-                firstPlayerState = new PlayerState(true);
-                secondPlayerState = new AIState();
-                // 게임 시작
+                bool firstPlayerIsMe = (UnityEngine.Random.Range(0, 2) == 0);
+
+                if (firstPlayerIsMe)
+                {
+                    firstPlayerState = new PlayerState(true);
+                    secondPlayerState = new AIState(false);  // AI는 백
+                }
+                else
+                {
+                    firstPlayerState = new AIState(true);    // AI는 흑
+                    secondPlayerState = new PlayerState(false);
+                }
+
                 SetState(firstPlayerState);
                 break;
+
             case Constants.GameType.DualPlay:
                 firstPlayerState = new PlayerState(true);
                 secondPlayerState = new PlayerState(false);

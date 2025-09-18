@@ -37,6 +37,7 @@ public class GameSceneUIManager : MonoBehaviour
         
         exitButton.onClick.AddListener(() =>
         {
+            Debug.Log("누름");
             ExitRoomAction?.Invoke();
             if(GameManager.Instance._gameType != Constants.GameType.MultiPlay)
                 GameManager.Instance.ChangeToMainScene();
@@ -83,6 +84,6 @@ public class GameSceneUIManager : MonoBehaviour
             
         });
 
-        Destroy(gameObject);
+        /*Destroy(gameObject);*/
     }
 }
