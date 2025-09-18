@@ -23,13 +23,12 @@ public class JoinController : MonoBehaviour
     public void OnClickEmailCheckButton()
     {
         string email = emailField.text.Trim();
-        // if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.(com|co\.kr)$"))
-        // {
-        //     GameManager.Instance.OpenConfirmPanel("이메일 형식이 올바르지 않습니다. \n(.com 또는 co.kr 형식인지 확인해 주세요)", null);
-        //     return;
-        // }
+        if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.(com|co\.kr)$"))
+        {
+            GameManager.Instance.OpenConfirmPanel("이메일 형식이 올바르지 않습니다. \n(.com 또는 co.kr 형식인지 확인해 주세요)", null);
+            return;
+        }
 
-        Debug.Log(email);
         _authenticationManager.OnUsernameCheckButtonClicked(email);
     }
 
