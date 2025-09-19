@@ -69,6 +69,16 @@ public class PointController : MonoBehaviour
 		_points[pointIndex].Preview(markerType, show);
 	}
 	
+	// 4. 기보 보여주기
+	public void ShowHistoryNumber(int row, int col, Constants.PlayerType playerType, int number)
+	{
+		// row, col >> index 변환
+		var pointIndex = row * Constants.BoardSize + col;
+	
+		// 반투명 돌 보여주기
+		_points[pointIndex].ShowNumber(playerType, number);
+	}
+	
 	// // 투명도 변화
 	// private Color ChangeAlpha(SpriteRenderer sprite, float a)
 	// {

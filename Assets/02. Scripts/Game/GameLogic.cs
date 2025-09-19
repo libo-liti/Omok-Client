@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -23,6 +24,22 @@ public class GameLogic
     public MultiplayController _multiplayController;
     private string _roomId;
     private Constants.GameType _gameType;
+    
+    public class StoneInfo
+    {
+        public int row;
+        public int col;
+        public Constants.PlayerType playerType;
+
+        public StoneInfo(int row, int col, Constants.PlayerType playerType)
+        {
+            this.row = row;
+            this.col = col;
+            this.playerType = playerType;
+        }
+    }
+    
+    private List<StoneInfo> _history = new List<StoneInfo>(); // 착수 순서대로 돌의 정보를 저장
 
     public GameLogic(PointController pointController, EmojiController emojiController, RenjuController renjuController, Timer timer, Constants.GameType gameType)
     {
@@ -119,6 +136,7 @@ public class GameLogic
         {
             _board[row, col] = playerType;
             pointController.PlaceMaker(Point.MarkerType.Black, row, col);
+            _history.Add(new StoneInfo(row, col, playerType));
             return true;
         }
         
@@ -126,6 +144,7 @@ public class GameLogic
         {
             _board[row, col] = playerType;
             pointController.PlaceMaker(Point.MarkerType.White, row, col);
+            _history.Add(new StoneInfo(row, col, playerType));
             return true;
         }        
         return false;
@@ -186,6 +205,12 @@ public class GameLogic
                 break;
         }
 
+        // 기보 보여주기
+        for (int i = 0; i < _history.Count; i++)
+        {
+            pointController.ShowHistoryNumber(_history[i].row, _history[i].col, _history[i].playerType, i + 1);
+        }
+
         GameSceneUIManager.Instance.ShowResult(message, fontColor);
         GameSceneUIManager.Instance.ShowButton(gameResult);
 
@@ -201,6 +226,8 @@ public class GameLogic
                 break;
         }
     }
+
+
     
     // 게임의 결과 확인
     public GameResult CheckGameResult(int y, int x)

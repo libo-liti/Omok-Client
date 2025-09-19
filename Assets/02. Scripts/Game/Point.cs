@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -6,10 +7,12 @@ public class Point : MonoBehaviour
 	[SerializeField] private SpriteRenderer markerSpriteRenderer;
 	[SerializeField] private SpriteRenderer borderSpriteRenderer;
 	
-	[SerializeField] private GameObject blackStone;
-	[SerializeField] private GameObject whiteStone;
-	public GameObject blackStoneTransparent;
-	public GameObject whiteStoneTransparent;
+	[SerializeField] private GameObject blackStone; // 흑돌
+	[SerializeField] private GameObject whiteStone; // 백돌
+	[SerializeField] private GameObject blackStoneTransparent; // 반투명 흑돌
+	[SerializeField] private GameObject whiteStoneTransparent; // 반투명 백돌
+
+	[SerializeField] private TMP_Text numberText; // 기보 숫자 텍스트
 	
 	public delegate void OnPointClicked(int index);
 	private OnPointClicked _onPointClicked;
@@ -31,6 +34,7 @@ public class Point : MonoBehaviour
 	{
 		_pointIndex = pointIndex;
 		SetMarker(MarkerType.None);
+		ShowNumber(Constants.PlayerType.None, -1);
 		_onPointClicked = onPointClicked;
 		_onPointEnter = onPointEnter;
 		_onPointExit = onPointExit;
@@ -98,6 +102,25 @@ public class Point : MonoBehaviour
 				break;
 			case MarkerType.White:
 				whiteStoneTransparent.SetActive(show);
+				break;
+		}
+	}
+
+	// 기보 숫자 보여주기
+	public void ShowNumber(Constants.PlayerType playerType, int number)
+	{
+		switch (playerType)
+		{
+			case Constants.PlayerType.None:
+				numberText.text = string.Empty;
+				break;
+			case Constants.PlayerType.PlayerA:
+				numberText.color = Color.white;
+				numberText.text = number.ToString();
+				break;
+			case Constants.PlayerType.PlayerB:
+				numberText.color = Color.black;
+				numberText.text = number.ToString();
 				break;
 		}
 	}
