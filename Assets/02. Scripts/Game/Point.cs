@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,19 +12,21 @@ public class Point : MonoBehaviour
 	
 	public delegate void OnPointClicked(int index);
 	private OnPointClicked _onPointClicked;
+	private Action<int> _onArcadeClicked;
 	
 	// 마커 타입
-	public enum MarkerType { None, Black, White }
+	public enum MarkerType { None, Black, White, Arcade }
 	
 	// Point Index
 	private int _pointIndex;
 	
 	// 1. 초기화
-	public void InitMarker(int pointIndex, OnPointClicked onPointClicked)
+	public void InitMarker(int pointIndex, OnPointClicked onPointClicked, Action<int> onArcadeClicked)
 	{
 		_pointIndex = pointIndex;
 		SetMarker(MarkerType.None);
 		_onPointClicked = onPointClicked;
+		_onArcadeClicked = onArcadeClicked;
 	}
 	
 	// 2. 마커 설정
@@ -37,6 +40,9 @@ public class Point : MonoBehaviour
 			case MarkerType.None:
 				markerColor = new Color(0, 0, 0, 0);
 				borderColor = new Color(0, 0, 0, 0);
+				// Todo: 아케이드 모양 비활성화
+				markerSpriteRenderer.color = markerColor;
+				markerSpriteRenderer.gameObject.SetActive(false);
 				break;
 			case MarkerType.Black:
 				markerColor = Color.black;
@@ -49,7 +55,11 @@ public class Point : MonoBehaviour
 				borderColor = Color.red;
 				
 				whiteStone.SetActive(true);
-
+				break;
+			case MarkerType.Arcade:
+				// Todo: 아케이드 모양 활성화
+				markerSpriteRenderer.gameObject.SetActive(true);
+				markerSpriteRenderer.color = Color.yellow;
 				break;
 		}
 
@@ -88,5 +98,18 @@ public class Point : MonoBehaviour
 		Debug.Log("Selected Point: " + _pointIndex);
         
 		_onPointClicked?.Invoke(_pointIndex);
+	}
+
+	private void OnMouseOver()
+	{
+		if (EventSystem.current.IsPointerOverGameObject())
+		{
+			return;
+		}
+
+		if (Input.GetMouseButtonDown(1))
+		{
+			_onArcadeClicked?.Invoke(_pointIndex);
+		}
 	}
 }
