@@ -28,7 +28,6 @@ public class GameLogic
     {
         this.pointController = pointController;
         this.timer = timer;
-        this.timer.StopTimer(); // 타이머 끈 상태로 시작
         _emojiController = emojiController;
         this.renjuController = renjuController;
         

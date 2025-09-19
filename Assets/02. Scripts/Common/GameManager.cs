@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -84,20 +85,30 @@ public class GameManager : Singleton<GameManager>
 
         if (scene.name == "Game")
         {
-            PointController pointController = FindFirstObjectByType<PointController>();
-            Timer timer = FindFirstObjectByType<Timer>();
-            EmojiController emojiController = FindFirstObjectByType<EmojiController>();
-            RenjuController renjuController = FindFirstObjectByType<RenjuController>();
-            if (pointController != null && emojiController != null && renjuController != null)
-            {
-                pointController.InitPoints();
-                emojiController.Init();
-                renjuController.Init();
+            StartCoroutine(Co_WaitAnimationAndStart());
+        }
+    }
+
+    // 카메라 애니메이션 대기 후 게임 시작
+    private IEnumerator Co_WaitAnimationAndStart()
+    {
+        PointController pointController = FindFirstObjectByType<PointController>();
+        Timer timer = FindFirstObjectByType<Timer>();
+        EmojiController emojiController = FindFirstObjectByType<EmojiController>();
+        RenjuController renjuController = FindFirstObjectByType<RenjuController>();
+        
+        if (pointController != null && emojiController != null && renjuController != null && timer != null)
+        {
+            pointController.InitPoints();
+            emojiController.Init();
+            renjuController.Init();
+            timer.StopTimer(); // 타이머 끈 상태로 시작
                 
-                _gameLogic = new GameLogic(pointController, emojiController, renjuController, timer, _gameType);
+            yield return new WaitForSeconds(2f); // 카메라 애니메이션 대기
+
+            _gameLogic = new GameLogic(pointController, emojiController, renjuController, timer, _gameType);
                 
-                Debug.Log(_gameType);
-            }
+            Debug.Log(_gameType);
         }
     }
 
