@@ -132,6 +132,22 @@ public class GameLogic
         return false;
     }
 
+    public void Preview(Constants.PlayerType playerType,
+        int row, int col, bool show)
+    {
+        if (_board[row, col] != Constants.PlayerType.None) return;
+
+        if (playerType == Constants.PlayerType.PlayerA)
+        {
+            pointController.Preview(Point.MarkerType.Black, row, col, show);
+        }
+
+        if (playerType == Constants.PlayerType.PlayerB)
+        {
+            pointController.Preview(Point.MarkerType.White, row, col, show);
+        }
+    }
+
     // 금수 위치에 X 표시 활성화
     public void SetForbiddenPoint(bool[,] xPoints)
     {

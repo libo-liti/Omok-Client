@@ -46,6 +46,14 @@ public class PlayerState : BasePlayerState
             // Point가 터치 될 때까지 기다렸다가 터치 되면 처리할 일
             HandleMove(gameLogic, row, col);
         };
+        gameLogic.pointController.OnPointEnterDelegate = (row, col) =>
+        {
+            gameLogic.Preview(_playerType, row, col, true);
+        };
+        gameLogic.pointController.OnPointExitDelegate = (row, col) =>
+        {
+            gameLogic.Preview(_playerType, row, col, false);
+        };
         
         // 3. Timer 시작 및 이벤트 전달
         if (_isMultiplay)
@@ -77,6 +85,8 @@ public class PlayerState : BasePlayerState
     public override void OnExit(GameLogic gameLogic)
     {
         gameLogic.pointController.OnPointClickedDelegate = null;
+        gameLogic.pointController.OnPointEnterDelegate = null;
+        gameLogic.pointController.OnPointExitDelegate = null;
         gameLogic.timer.StopTimer(); // 타이머 비활성화
         if (_isFirstPlayer) gameLogic.RemoveAllForbiddenPoint(); // 흑돌 턴 종료시 모든 금수 표시 비활성화
     }

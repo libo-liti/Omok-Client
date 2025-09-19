@@ -8,9 +8,17 @@ public class Point : MonoBehaviour
 	
 	[SerializeField] private GameObject blackStone;
 	[SerializeField] private GameObject whiteStone;
+	public GameObject blackStoneTransparent;
+	public GameObject whiteStoneTransparent;
 	
 	public delegate void OnPointClicked(int index);
 	private OnPointClicked _onPointClicked;
+	
+	public delegate void OnPointEnter(int index);
+	private OnPointEnter _onPointEnter;
+	
+	public delegate void OnPointExit(int index);
+	private OnPointExit _onPointExit;
 	
 	// 마커 타입
 	public enum MarkerType { None, Black, White }
@@ -19,11 +27,13 @@ public class Point : MonoBehaviour
 	private int _pointIndex;
 	
 	// 1. 초기화
-	public void InitMarker(int pointIndex, OnPointClicked onPointClicked)
+	public void InitMarker(int pointIndex, OnPointClicked onPointClicked, OnPointEnter onPointEnter, OnPointExit onPointExit)
 	{
 		_pointIndex = pointIndex;
 		SetMarker(MarkerType.None);
 		_onPointClicked = onPointClicked;
+		_onPointEnter = onPointEnter;
+		_onPointExit = onPointExit;
 	}
 	
 	// 2. 마커 설정
@@ -75,6 +85,21 @@ public class Point : MonoBehaviour
 			borderSpriteRenderer.enabled = false;
 		}
 	}
+	
+	public void Preview(MarkerType markerType, bool show)
+	{
+		switch (markerType)
+		{
+			case MarkerType.None:
+				break;
+			case MarkerType.Black:
+				blackStoneTransparent.SetActive(show);
+				break;
+			case MarkerType.White:
+				whiteStoneTransparent.SetActive(show);
+				break;
+		}
+	}
 
 	
 	// 3. 블럭 터치 처리
@@ -85,8 +110,29 @@ public class Point : MonoBehaviour
 			return;
 		}
         
-		Debug.Log("Selected Point: " + _pointIndex);
         
 		_onPointClicked?.Invoke(_pointIndex);
+	}
+	
+	private void OnMouseEnter()
+	{
+		if (EventSystem.current.IsPointerOverGameObject())
+		{
+			return;
+		}
+		
+		Debug.Log("Selected Point: " + _pointIndex);
+		
+		_onPointEnter?.Invoke(_pointIndex);
+	}
+	
+	private void OnMouseExit()
+	{
+		if (EventSystem.current.IsPointerOverGameObject())
+		{
+			return;
+		}
+		
+		_onPointExit?.Invoke(_pointIndex);
 	}
 }

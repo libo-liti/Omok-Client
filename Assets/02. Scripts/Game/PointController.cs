@@ -9,6 +9,10 @@ public class PointController : MonoBehaviour
 	
 	public delegate void OnPointClicked(int row, int col);
 	public OnPointClicked OnPointClickedDelegate;
+	public delegate void OnPointEnter(int row, int col);
+	public OnPointEnter OnPointEnterDelegate;
+	public delegate void OnPointExit(int row, int col);
+	public OnPointExit OnPointExitDelegate;
 	
 	// 1. 모든 Point를 초기화
 	public void InitPoints()
@@ -20,9 +24,19 @@ public class PointController : MonoBehaviour
 			_points[i].InitMarker(i, pointIndex =>
 			{
 				// 특정 Point가 클릭 된 상태에 대한 처리
-				var row =  pointIndex / Constants.BoardSize;
+				var row = pointIndex / Constants.BoardSize;
 				var col = pointIndex % Constants.BoardSize;
 				OnPointClickedDelegate?.Invoke(row, col);
+			}, (pointIndex) =>
+			{
+				var row = pointIndex / Constants.BoardSize;
+				var col = pointIndex % Constants.BoardSize;
+				OnPointEnterDelegate?.Invoke(row, col);
+			}, (pointIndex) =>
+			{
+				var row = pointIndex / Constants.BoardSize;
+				var col = pointIndex % Constants.BoardSize;
+				OnPointExitDelegate?.Invoke(row, col);
 			});
 		}
 	}
@@ -45,21 +59,15 @@ public class PointController : MonoBehaviour
 		AudioManager.Instance.PlayStoneSE();
 	}
 	
+	// 3. 바둑돌 놓을 위치 미리보기
+	public void Preview(Point.MarkerType markerType, int row, int col, bool show)
+	{
+		// row, col >> index 변환
+		var pointIndex = row * Constants.BoardSize + col;
 	
-
-	// 바둑돌 놓을 위치 미리보기
-	// public void Preview(Vector2 pos)
-	// {
-	// 	// 바둑돌 생성
-	// 	if (GameManager.Instance.currentTurn == GameManager.Turn.PlayerA)
-	// 		Player.currentStone = Instantiate(blackStone, pos, Quaternion.identity);
-	// 	else
-	// 		Player.currentStone = Instantiate(whiteStone, pos, Quaternion.identity);
-	//
-	// 	// 바둑돌 투명하게
-	// 	stoneSprite = Player.currentStone.GetComponent<SpriteRenderer>();
-	// 	stoneSprite.color = ChangeAlpha(stoneSprite, 0.6f);
-	// }
+		// 반투명 돌 보여주기
+		_points[pointIndex].Preview(markerType, show);
+	}
 	
 	// // 투명도 변화
 	// private Color ChangeAlpha(SpriteRenderer sprite, float a)
