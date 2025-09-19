@@ -132,6 +132,7 @@ public class GameLogic
         return false;
     }
 
+    // 특정 위치에 미리보기용 반투명 돌 표시 / 숨기기
     public void Preview(Constants.PlayerType playerType,
         int row, int col, bool show)
     {

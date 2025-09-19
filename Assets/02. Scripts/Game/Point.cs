@@ -26,7 +26,7 @@ public class Point : MonoBehaviour
 	// Point Index
 	private int _pointIndex;
 	
-	// 1. 초기화
+	// 초기화
 	public void InitMarker(int pointIndex, OnPointClicked onPointClicked, OnPointEnter onPointEnter, OnPointExit onPointExit)
 	{
 		_pointIndex = pointIndex;
@@ -36,7 +36,7 @@ public class Point : MonoBehaviour
 		_onPointExit = onPointExit;
 	}
 	
-	// 2. 마커 설정
+	// 마커 설정
 	public void SetMarker(MarkerType markerType)
 	{
 		Color markerColor = Color.clear;
@@ -86,6 +86,7 @@ public class Point : MonoBehaviour
 		}
 	}
 	
+	// 미리보기용 반투명 돌 활성화 / 비활성화 
 	public void Preview(MarkerType markerType, bool show)
 	{
 		switch (markerType)
@@ -102,7 +103,7 @@ public class Point : MonoBehaviour
 	}
 
 	
-	// 3. 블럭 터치 처리
+	// 포인트 터치 처리
 	private void OnMouseUpAsButton()
 	{
 		if (EventSystem.current.IsPointerOverGameObject())
@@ -114,6 +115,7 @@ public class Point : MonoBehaviour
 		_onPointClicked?.Invoke(_pointIndex);
 	}
 	
+	// 포인트에 마우스가 들어왔을 때 처리
 	private void OnMouseEnter()
 	{
 		if (EventSystem.current.IsPointerOverGameObject())
@@ -121,11 +123,10 @@ public class Point : MonoBehaviour
 			return;
 		}
 		
-		Debug.Log("Selected Point: " + _pointIndex);
-		
 		_onPointEnter?.Invoke(_pointIndex);
 	}
 	
+	// 포인트에서 마우스가 나갔을 때 처리
 	private void OnMouseExit()
 	{
 		if (EventSystem.current.IsPointerOverGameObject())

@@ -48,10 +48,12 @@ public class PlayerState : BasePlayerState
         };
         gameLogic.pointController.OnPointEnterDelegate = (row, col) =>
         {
+            // Point에 마우스가 올라가면 처리할 일
             gameLogic.Preview(_playerType, row, col, true);
         };
         gameLogic.pointController.OnPointExitDelegate = (row, col) =>
         {
+            // Point에서 마우스가 나가면 처리할 일
             gameLogic.Preview(_playerType, row, col, false);
         };
         
