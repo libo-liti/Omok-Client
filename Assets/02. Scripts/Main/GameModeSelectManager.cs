@@ -15,5 +15,10 @@ public class GameModeSelectManager : MonoBehaviour
     {
         GameManager.Instance.ChangeToGameScene(Constants.GameType.MultiPlay);
     }
+    
+    public void OnClickArcadePlay()
+    {
+        GameManager.Instance.ChangeToGameScene(Constants.GameType.ArcadePlay);
+    }
 }
 

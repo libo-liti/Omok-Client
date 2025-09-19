@@ -1,11 +1,18 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class PointController : MonoBehaviour
 {
-	private Point[] _points;
+	[SerializeField] private GameObject arcadePanel;
+	[SerializeField] private GameObject[] blackArcade;
+	[SerializeField] private GameObject[] WhiteArcade;
+	
+	public Point[] _points;
 	private Point _lastPoint; //마지막 돌 
+	public Point lastArcade;
+	public Vector2Int lastArcadePos;
+	public int blackScore;
+	public int whiteScore;
 	
 	public delegate void OnPointClicked(int row, int col);
 	public OnPointClicked OnPointClickedDelegate;
@@ -13,11 +20,15 @@ public class PointController : MonoBehaviour
 	public OnPointEnter OnPointEnterDelegate;
 	public delegate void OnPointExit(int row, int col);
 	public OnPointExit OnPointExitDelegate;
+	public Action<int, int> OnArcadeClickedAction;
+	public Action OnEndGameAction;
 	
 	// 1. 모든 Point를 초기화
 	public void InitPoints()
 	{
 		_points = GetComponentsInChildren<Point>();
+		if(GameManager.Instance._gameType == Constants.GameType.ArcadePlay)
+			arcadePanel.SetActive(true);
 		
 		for (int i = 0; i < _points.Length; i++)
 		{
@@ -37,6 +48,11 @@ public class PointController : MonoBehaviour
 				var row = pointIndex / Constants.BoardSize;
 				var col = pointIndex % Constants.BoardSize;
 				OnPointExitDelegate?.Invoke(row, col);
+			}, (pointIndex) =>
+			{
+				var row =  pointIndex / Constants.BoardSize;
+				var col = pointIndex % Constants.BoardSize;
+				OnArcadeClickedAction?.Invoke(row, col);
 			});
 		}
 	}
@@ -67,6 +83,16 @@ public class PointController : MonoBehaviour
 	
 		// 반투명 돌 보여주기
 		_points[pointIndex].Preview(markerType, show);
+	}
+	public void ArcadeScore(Constants.PlayerType player)
+	{
+		if (player == Constants.PlayerType.PlayerA)
+			blackArcade[blackScore++].SetActive(true);
+		else
+			WhiteArcade[whiteScore++].SetActive(true);
+
+		if (blackScore == 5 || whiteScore == 5)
+			OnEndGameAction?.Invoke();
 	}
 	
 	// // 투명도 변화
