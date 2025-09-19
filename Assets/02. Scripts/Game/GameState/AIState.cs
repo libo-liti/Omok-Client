@@ -79,6 +79,6 @@ public class AIState : BasePlayerState
         
         int randomIndex = Random.Range(0, 5);
         int emojiIndex = isWin ? winEmoji[randomIndex] : loseEmoji[randomIndex];
-        emojiController.SetEmoji(emojiIndex);
+        emojiController.SetEmoji(emojiIndex, false);
     }
 }

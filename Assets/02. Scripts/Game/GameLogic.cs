@@ -89,9 +89,9 @@ public class GameLogic
                         case Constants.MultiplayControllerState.EndGame:
                             if (_currentPlayerState != null)
                             {
-                                Debug.Log("상대가 기권");
                                 var result = (firstPlayerState is PlayerState) ? GameResult.Win : GameResult.Lose;
                                 EndGame(result);
+                                GameManager.Instance.OpenConfirmPanel("상대방이 기권하고 나갔습니다.", null);
                             }
                             break;
                         case Constants.MultiplayControllerState.ExitRoom:

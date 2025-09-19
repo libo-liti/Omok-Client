@@ -1,11 +1,8 @@
-using System;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
 using TMPro;
-using UnityEngine.Serialization;
 
 [System.Serializable]
 public class AuthResponse
@@ -33,9 +30,20 @@ public class SigninData
 
 public class AuthenticationManager : MonoBehaviour
 {
+    public MainSceneUIManager mainSceneUIManager;
+    public JoinController joinController;
+    
+    public TMP_InputField emailField;
+    public TMP_InputField passwordInputField;
+    
     public string username;
     public string password;
     public string nickname;
+
+    public void OnUsernameCheckButtonClicked(string email)
+    {
+        StartCoroutine(SendAuthRequest("api/check-username", email, ""));
+    }
     
     public void OnSignupButtonClicked()
     {
@@ -46,7 +54,7 @@ public class AuthenticationManager : MonoBehaviour
     {
         StartCoroutine(SendAuthRequest("api/login", username, password));
     }
-
+    
     // 서버에 HTTP 요청을 보내는 코루틴
     IEnumerator SendAuthRequest(string endpoint, string username, string password, string nickname = null)
     {
@@ -65,7 +73,7 @@ public class AuthenticationManager : MonoBehaviour
             // 구조체 말고 문자열로도 가능
             // json = "{\"username\":\"" + username + "\", \"password\":\"" + password + "\", \"nickname\":\"" + nickname + "\"}";
         }
-        else
+        else if(endpoint == "api/login")
         {
             SigninData data = new SigninData();
             data.username = username;
@@ -73,6 +81,12 @@ public class AuthenticationManager : MonoBehaviour
             json = JsonUtility.ToJson(data); // JsonUtility를 사용하여 JSON 문자열로 변환
                
             // json = "{\"username\":\"" + username + "\", \"password\":\"" + password + "\"}";
+        }
+        else
+        {
+            SigninData data = new SigninData();
+            data.username = username;
+            json = JsonUtility.ToJson(data);
         }
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -87,20 +101,58 @@ public class AuthenticationManager : MonoBehaviour
 
             string responseText = www.downloadHandler.text;
             AuthResponse authResponse = JsonUtility.FromJson<AuthResponse>(responseText);
-            
-            if (www.result != UnityWebRequest.Result.Success)
-            {
-                Debug.Log("로그인 실패!");
-            }
-            else
+            // 네트워크 접속
+            if (www.result == UnityWebRequest.Result.Success)
             {
                 if (endpoint == "api/login" && authResponse.success)
                 {
-                    Debug.Log("로그인 성공! 게임 시작 화면으로 전환합니다.");
-                    if (!string.IsNullOrEmpty(authResponse.nickname))
+                    GameManager.Instance.guestName = authResponse.nickname;
+                    mainSceneUIManager.RefreshUI();
+                }
+                else if (endpoint == "api/signup")
+                {
+                    GameManager.Instance.OpenConfirmPanel("회원가입에 성공하셨습니다.", () =>
                     {
-                        GameManager.Instance.guestName = authResponse.nickname;
+                        joinController.OnClickCancelButton();
+                    });
+                }
+                else if (endpoint == "api/check-username")
+                {
+                    GameManager.Instance.OpenConfirmPanel("사용할 수 있는 아이디 입니다.", null);
+                }
+            }
+            else
+            {
+                if (endpoint == "api/login")
+                {
+                    if (authResponse.result == "id")
+                    {
+                        GameManager.Instance.OpenConfirmPanel("아이디가 일치하지 않습니다.", () =>
+                        {
+                            emailField.text = "";
+                            passwordInputField.text = "";
+                        });
                     }
+                    else if (authResponse.result == "password")
+                    {
+                        GameManager.Instance.OpenConfirmPanel("비밀번호가 일치하지 않습니다.", () =>
+                        {
+                            passwordInputField.text = "";
+                        });
+                    }
+                    else
+                        Debug.Log("로그인 실패 : " + www.error);
+                }
+                else if (endpoint == "api/signup")
+                {
+                    if (authResponse.result == "id")
+                    {
+                        GameManager.Instance.OpenConfirmPanel("이 아이디는 이미 사용중 입니다.", null);
+                    }
+                }
+                else if (endpoint == "api/check-username")
+                {
+                    GameManager.Instance.OpenConfirmPanel("이 아이디는 이미 사용중 입니다.", null);
                 }
             }
         }

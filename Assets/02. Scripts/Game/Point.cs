@@ -6,6 +6,9 @@ public class Point : MonoBehaviour
 	[SerializeField] private SpriteRenderer markerSpriteRenderer;
 	[SerializeField] private SpriteRenderer borderSpriteRenderer;
 	
+	[SerializeField] private GameObject blackStone;
+	[SerializeField] private GameObject whiteStone;
+	
 	public delegate void OnPointClicked(int index);
 	private OnPointClicked _onPointClicked;
 	
@@ -38,34 +41,39 @@ public class Point : MonoBehaviour
 			case MarkerType.Black:
 				markerColor = Color.black;
 				borderColor = Color.yellow;
+				
+				blackStone.SetActive(true);
 				break;
 			case MarkerType.White:
 				markerColor = Color.white;
 				borderColor = Color.red;
+				
+				whiteStone.SetActive(true);
+
 				break;
 		}
 
-		markerSpriteRenderer.color = markerColor;
-
-		if (borderSpriteRenderer != null)
-		{
-			borderSpriteRenderer.color = borderColor;
-			borderSpriteRenderer.enabled = (markerType != MarkerType.None);
-
-			// 원본은 0.9 사이즈
-			markerSpriteRenderer.transform.localScale = Vector3.one * 0.9f;
-
-			// 뒤쪽 레이어 1.1 사이즈
-			borderSpriteRenderer.transform.localScale = Vector3.one * 1.1f;
-		}
+		// markerSpriteRenderer.color = markerColor;
+		//
+		// if (borderSpriteRenderer != null)
+		// {
+		// 	borderSpriteRenderer.color = borderColor;
+		// 	borderSpriteRenderer.enabled = (markerType != MarkerType.None);
+		//
+		// 	// 원본은 0.9 사이즈
+		// 	markerSpriteRenderer.transform.localScale = Vector3.one * 0.9f;
+		//
+		// 	// 뒤쪽 레이어 1.1 사이즈
+		// 	borderSpriteRenderer.transform.localScale = Vector3.one * 1.1f;
+		// }
 	}
 	
 	public void HideBorder()
 	{
-		if (borderSpriteRenderer != null)
-		{
-			borderSpriteRenderer.enabled = false;
-		}
+		// if (borderSpriteRenderer != null)
+		// {
+		// 	borderSpriteRenderer.enabled = false;
+		// }
 	}
 
 	
