@@ -19,6 +19,10 @@ public class StoneData
     public string player;
 }
 
+public class PlayerData
+{
+    public string player;
+}
 public class EmojiData
 {
     public int emoji;
@@ -32,6 +36,7 @@ public class MultiplayController
     public Action<int> onBlockDataChanged;
     public Action<int> setEmoji;
     public Action onDisconnectComplete;
+    public Action<string> onArcadeOpponent;
     
     public MultiplayController(Action<Constants.MultiplayControllerState, string> onMultiplayStateChanged)
     {
@@ -49,6 +54,7 @@ public class MultiplayController
         socket.OnUnityThread("doOpponent", DoOpponent);
         socket.OnUnityThread("opponentEmoji", OpponentEmoji);
         socket.OnUnityThread("escapeOpponent", EscapeOpponent);
+        socket.OnUnityThread("arcadeOpponent", ArcadeOpponent);
         
         socket.Connect();
     }
@@ -125,6 +131,12 @@ public class MultiplayController
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayControllerState.EndGame, _roomId);
     }
 
+    private void ArcadeOpponent(SocketIOResponse response)
+    {
+        var data = JsonUtility.FromJson<PlayerData>(response.GetValue().GetRawText());
+        onArcadeOpponent?.Invoke(data.player);
+    }
+
     public void DoPlayer(string myRoomId, int x, int y)
     {
         socket.Emit("doPlayer", new { room = myRoomId, x = x, y = y });
@@ -133,6 +145,12 @@ public class MultiplayController
     public void PlayerEmoji(string myRoomId, int emojiNum)
     {
         socket.Emit("playerEmoji", new { room = myRoomId, emoji = emojiNum });
+    }
+
+    public void ArcadeSuccess(string myRoomId, Constants.PlayerType playerType)
+    {
+        var player = (playerType == Constants.PlayerType.PlayerA) ? "black" : "white";
+        socket.Emit("arcadeSuccess", new {room = myRoomId, player = player});
     }
 
     public void Dispose(Action onComplete)

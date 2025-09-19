@@ -77,14 +77,14 @@ public class GameLogic
                     {
                         case Constants.MultiplayControllerState.CreateRoom:
                             Debug.Log("## CreateRoom ##");
-                            firstPlayerState = new PlayerState(true, _multiplayController, _emojiController, _roomId);
+                            firstPlayerState = new PlayerState(true, _multiplayController, _emojiController, pointController, _roomId);
                             secondPlayerState = new MultiplayerState(false, _multiplayController);
                             // SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.JoinRoom:
                             Debug.Log("## JoinRoom ##");
                             firstPlayerState = new MultiplayerState(true, _multiplayController);
-                            secondPlayerState = new PlayerState(false, _multiplayController, _emojiController, _roomId);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _emojiController, pointController, _roomId);
                             // SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.GameStart:
@@ -108,12 +108,68 @@ public class GameLogic
                     }
                 });
                 break;
+            case Constants.GameType.ArcadePlay:
+                _multiplayController = new MultiplayController((state, roomId) =>
+                {
+                    _roomId = roomId;
+                    switch (state)
+                    {
+                        case Constants.MultiplayControllerState.CreateRoom:
+                            Debug.Log("## CreateRoom ##");
+                            firstPlayerState = new PlayerState(true, _multiplayController, _emojiController, pointController, _roomId);
+                            secondPlayerState = new MultiplayerState(false, _multiplayController);
+                            break;
+                        case Constants.MultiplayControllerState.JoinRoom:
+                            Debug.Log("## JoinRoom ##");
+                            firstPlayerState = new MultiplayerState(true, _multiplayController);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _emojiController, pointController, _roomId);
+                            break;
+                        case Constants.MultiplayControllerState.GameStart:
+                            Debug.Log("## GameStart ##");
+                            SetState(firstPlayerState);
+                            break;
+                        case Constants.MultiplayControllerState.EndGame:
+                            if (pointController.blackScore == 5)
+                            {
+                                EndGame(GameResult.Win);
+                                GameManager.Instance.OpenConfirmPanel("5회 예측으로 흑돌 승리", null);
+                                break;
+                            }
+                            
+                            if (pointController.whiteScore == 5)
+                            {
+                                EndGame(GameResult.Lose);
+                                GameManager.Instance.OpenConfirmPanel("5회 예측으로 백돌 승리", null);
+                                break;
+                            }
+                            
+                            if (_currentPlayerState != null)
+                            {
+                                var result = (firstPlayerState is PlayerState) ? GameResult.Win : GameResult.Lose;
+                                EndGame(result);
+                                GameManager.Instance.OpenConfirmPanel("상대방이 기권하고 나갔습니다.", null);
+                            }
+                            break;
+                        case Constants.MultiplayControllerState.ExitRoom:
+                            Dispose(() =>
+                            {
+                                GameManager.Instance.ChangeToMainScene();
+                            });
+                            break;
+                    }
+                });
+                break;
         }
     }
 
     public Constants.PlayerType[,] GetBoard()
     {
         return _board;
+    }
+
+    public Constants.PlayerType GetBoardValue(int row, int col)
+    {
+        return _board[row, col];
     }
 
     // 턴이 바뀔 때, 기존 진행하던 상태를 Exit 하고
