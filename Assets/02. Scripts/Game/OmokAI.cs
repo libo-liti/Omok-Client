@@ -341,8 +341,8 @@ public static class OmokAI
 				if (board[i, j] != Constants.PlayerType.None)
 					continue;
 				
-				int count_ThreeThree = 0;
-				int count_FourFour = 0;
+				int count_OpenThree = 0;
+				int count_Four = 0;
 				
 				for (int k = 0; k < 4; k++)
 				{
@@ -354,13 +354,13 @@ public static class OmokAI
 					}
 					
 					if (IsOpenThree(line))	
-						count_ThreeThree++;
+						count_OpenThree++;
 					
 					if (IsFour(line))
-						count_FourFour++;
+						count_Four++;
 				}
 
-				if (count_ThreeThree >= 2 || count_FourFour >= 2)
+				if (count_OpenThree >= 2 || count_Four >= 2)
 					b[i, j] = true;
 			}
 		}
