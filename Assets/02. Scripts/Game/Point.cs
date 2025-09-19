@@ -54,26 +54,26 @@ public class Point : MonoBehaviour
 		}
 
 		// markerSpriteRenderer.color = markerColor;
-		//
-		// if (borderSpriteRenderer != null)
-		// {
-		// 	borderSpriteRenderer.color = borderColor;
-		// 	borderSpriteRenderer.enabled = (markerType != MarkerType.None);
-		//
-		// 	// 원본은 0.9 사이즈
-		// 	markerSpriteRenderer.transform.localScale = Vector3.one * 0.9f;
-		//
-		// 	// 뒤쪽 레이어 1.1 사이즈
-		// 	borderSpriteRenderer.transform.localScale = Vector3.one * 1.1f;
-		// }
+		
+		if (borderSpriteRenderer != null)
+		{
+			borderSpriteRenderer.color = borderColor;
+			borderSpriteRenderer.enabled = (markerType != MarkerType.None);
+		
+			// 원본은 0.9 사이즈
+			// markerSpriteRenderer.transform.localScale = Vector3.one * 0.9f;
+		
+			// 뒤쪽 레이어 1.1 사이즈
+			borderSpriteRenderer.transform.localScale = Vector3.one * 1.1f;
+		}
 	}
 	
 	public void HideBorder()
 	{
-		// if (borderSpriteRenderer != null)
-		// {
-		// 	borderSpriteRenderer.enabled = false;
-		// }
+		if (borderSpriteRenderer != null)
+		{
+			borderSpriteRenderer.enabled = false;
+		}
 	}
 
 	
