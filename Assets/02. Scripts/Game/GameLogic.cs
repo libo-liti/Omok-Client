@@ -143,14 +143,12 @@ public class GameLogic
                             if (pointController.blackScore == 5)
                             {
                                 EndGame(GameResult.Win);
-                                GameManager.Instance.OpenConfirmPanel("5회 예측으로 흑돌 승리", null);
                                 break;
                             }
                             
                             if (pointController.whiteScore == 5)
                             {
                                 EndGame(GameResult.Lose);
-                                GameManager.Instance.OpenConfirmPanel("5회 예측으로 백돌 승리", null);
                                 break;
                             }
                             
