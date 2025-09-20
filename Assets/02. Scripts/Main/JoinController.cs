@@ -16,7 +16,7 @@ public class JoinController : MonoBehaviour
     
     private void Start()
     {
-        _authenticationManager = GameObject.Find("NetworkManager").GetComponent<AuthenticationManager>();
+        _authenticationManager = GameObject.Find("Authentication Manager").GetComponent<AuthenticationManager>();
         _authenticationManager.joinController = this;
     }
 
