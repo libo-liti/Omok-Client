@@ -11,7 +11,7 @@ public class LoginController : MonoBehaviour
 
     private void Start()
     {
-        _authenticationManager = GameObject.Find("NetworkManager").GetComponent<AuthenticationManager>();
+        _authenticationManager = GameObject.Find("Authentication Manager").GetComponent<AuthenticationManager>();
     }
 
     public void OnClickLoginButton()
