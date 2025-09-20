@@ -4,6 +4,7 @@ public class PlayerState : BasePlayerState
 {
     private bool _isFirstPlayer;
     private Constants.PlayerType _playerType;
+    private Constants.PlayerType _opponentType;
     private MultiplayController _multiplayController;
     private EmojiController _emojiController;
 
@@ -16,10 +17,12 @@ public class PlayerState : BasePlayerState
         _isFirstPlayer = isFirstPlayer;
         _playerType = _isFirstPlayer ? 
             Constants.PlayerType.PlayerA :  Constants.PlayerType.PlayerB;
+        _opponentType = _isFirstPlayer ?
+            Constants.PlayerType.PlayerB :  Constants.PlayerType.PlayerA;
     }
 
     public PlayerState(bool isFirstPlayer, MultiplayController multiplayController, EmojiController emojiController,
-        string roomId) : this(isFirstPlayer)
+        PointController _pointController, string roomId) : this(isFirstPlayer)
     {
         _multiplayController = multiplayController;
         _emojiController = emojiController;
@@ -33,6 +36,19 @@ public class PlayerState : BasePlayerState
         {
             _emojiController.SetEmoji(n, false);
         };
+        if (GameManager.Instance._gameType == Constants.GameType.ArcadePlay)
+        {
+            _multiplayController.onArcadeOpponent = (player) =>
+            {
+                var playerType = (player == "black") ? Constants.PlayerType.PlayerA : Constants.PlayerType.PlayerB;
+                _pointController.ArcadeScore(playerType);
+            };
+
+            _pointController.OnEndGameAction = () =>
+            {
+                _multiplayController._onMultiplayStateChanged?.Invoke(Constants.MultiplayControllerState.EndGame, roomId);
+            };
+        }
     }
     
     public override void OnEnter(GameLogic gameLogic)
@@ -46,10 +62,50 @@ public class PlayerState : BasePlayerState
             // Point가 터치 될 때까지 기다렸다가 터치 되면 처리할 일
             HandleMove(gameLogic, row, col);
         };
+        gameLogic.pointController.OnPointEnterDelegate = (row, col) =>
+        {
+            // Point에 마우스가 올라가면 처리할 일
+            gameLogic.Preview(_playerType, row, col, true);
+        };
+        gameLogic.pointController.OnPointExitDelegate = (row, col) =>
+        {
+            // Point에서 마우스가 나가면 처리할 일
+            gameLogic.Preview(_playerType, row, col, false);
+        };
         
         // 3. Timer 시작 및 이벤트 전달
         if (_isMultiplay)
         {
+            if (GameManager.Instance._gameType == Constants.GameType.ArcadePlay)
+            {
+                if (gameLogic.pointController.lastArcade != null)
+                {
+                    var row = gameLogic.pointController.lastArcadePos.y;
+                    var col = gameLogic.pointController.lastArcadePos.x;
+                    if (gameLogic.GetBoardValue(row, col) == _opponentType)
+                    {
+                        gameLogic.pointController.ArcadeScore(_playerType);
+                        _multiplayController.ArcadeSuccess(_roomId, _playerType);
+                    }
+                    
+                    gameLogic.pointController.lastArcade.SetMarker(Point.MarkerType.None);
+                    gameLogic.pointController.lastArcade = null;
+                }
+                    
+                gameLogic.pointController.OnArcadeClickedAction = (row, col) =>
+                {
+                    if (gameLogic.GetBoardValue(row, col) != Constants.PlayerType.None)
+                        return;
+                    
+                    if (gameLogic.pointController.lastArcade != null)
+                        gameLogic.pointController.lastArcade.SetMarker(Point.MarkerType.None);
+                    
+                    gameLogic.pointController.lastArcade =
+                        gameLogic.pointController._points[row * Constants.BoardSize + col];
+                    gameLogic.pointController.lastArcadePos = new Vector2Int(col, row);
+                    gameLogic.pointController.lastArcade.SetMarker(Point.MarkerType.Arcade);
+                };
+            }
             UnityThread.executeInUpdate(() =>
             {
                 gameLogic.timer.StartTimer(_isFirstPlayer, () =>
@@ -77,6 +133,9 @@ public class PlayerState : BasePlayerState
     public override void OnExit(GameLogic gameLogic)
     {
         gameLogic.pointController.OnPointClickedDelegate = null;
+        gameLogic.pointController.OnPointEnterDelegate = null;
+        gameLogic.pointController.OnPointExitDelegate = null;
+        gameLogic.pointController.OnArcadeClickedAction = null;
         gameLogic.timer.StopTimer(); // 타이머 비활성화
         if (_isFirstPlayer) gameLogic.RemoveAllForbiddenPoint(); // 흑돌 턴 종료시 모든 금수 표시 비활성화
     }

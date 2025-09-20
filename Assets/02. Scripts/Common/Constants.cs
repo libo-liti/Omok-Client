@@ -11,7 +11,7 @@ public static class Constants
         EndGame,
         ExitRoom
     }
-    public enum GameType { None ,SinglePlay, DualPlay, MultiPlay }
+    public enum GameType { None ,SinglePlay, DualPlay, MultiPlay, ArcadePlay }
     public enum PlayerType { None, PlayerA, PlayerB }
 
     public const int BoardSize = 15;
