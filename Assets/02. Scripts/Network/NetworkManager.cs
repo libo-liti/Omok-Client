@@ -17,18 +17,17 @@ public class RoomList
 {
     public RoomData[] rooms;
 }
-
-public class ModeData
-{
-    public string mode;
-}
 public class NetworkManager : Singleton<NetworkManager>
 {
     private List<GameObject> roomPrefabList = new List<GameObject>();
     private SocketIOUnity socket;
-    private Constants.MultiplayControllerState _giveState;
     [SerializeField] private GameObject roomPrefab;
-    [SerializeField] private Transform roomListContent;
+    public Transform roomListContent;
+    public Button closedButton;
+    
+    public Constants.MultiplayControllerState state;
+    public string roomName;
+    public string mode;
     
     public void Init()
     {
@@ -48,13 +47,24 @@ public class NetworkManager : Singleton<NetworkManager>
     
     private void OnServerConnected(object sender, EventArgs e)
     {
-        Debug.Log("서버에 연결되었습니다");
+         Debug.Log("서버에 연결되었습니다");
         GetRooms();
     }
 
     private void OnServerDisconnected(object sender, string e)
     {
         Debug.Log($"서버 연결이 끊어졌습니다: {e}");
+        UnityThread.executeInUpdate(() =>
+        {
+            if (mode == "normal")
+            {
+                GameManager.Instance.ChangeToGameScene(Constants.GameType.MultiPlay);
+            }
+            else if (mode == "arcade")
+            {
+                GameManager.Instance.ChangeToGameScene(Constants.GameType.ArcadePlay);
+            }
+        });
     }
     
     // 멀티방 목록 가져오기
@@ -78,8 +88,11 @@ public class NetworkManager : Singleton<NetworkManager>
     private void CreateRoomSuccess(SocketIOResponse response)
     {
         Debug.Log("방 만들 수 있음");
-        var data = JsonUtility.FromJson<ModeData>(response.GetValue().GetRawText());
-        // Todo: 씬 넘기고 방 만들기 알려주기
+        var data = JsonUtility.FromJson<RoomData>(response.GetValue().GetRawText());
+        state = Constants.MultiplayControllerState.CreateRoom;
+        roomName = data.roomName;
+        mode = data.mode;
+        socket.Disconnect();
     }
 
     private void CreateRoomFailed(SocketIOResponse response)
@@ -90,7 +103,11 @@ public class NetworkManager : Singleton<NetworkManager>
     private void JoinRoomSuccess(SocketIOResponse response)
     {
         Debug.Log("방 참가 가능");
-        // Todo : 씬 넘어갈때 방 입장 + 방 이름 넘겨주기
+        var data = JsonUtility.FromJson<RoomData>(response.GetValue().GetRawText());
+        state = Constants.MultiplayControllerState.JoinRoom;
+        roomName = data.roomName;
+        mode = data.mode;
+        socket.Disconnect();
     }
 
     private void JoinRoomFailed(SocketIOResponse response)
@@ -110,9 +127,9 @@ public class NetworkManager : Singleton<NetworkManager>
         socket.Emit("createRoomCheck", new {roomName, mode});
     }
     // 입장 가능한지 체크
-    public void JoinRoomCheck(string roomName)
+    public void JoinRoomCheck(string roomName, string mode)
     {
-        socket.Emit("joinRoomCheck", new {roomName = roomName});
+        socket.Emit("joinRoomCheck", new {roomName = roomName, mode = mode});
     }
 
     public void Dispose()
@@ -131,5 +148,12 @@ public class NetworkManager : Singleton<NetworkManager>
 
     protected override void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
+        if (scene.name == "Main")
+        {
+            GameObject.Find("Arcade Mode Button").GetComponent<Button>().onClick.AddListener(Init);
+            roomName = null;
+            this.mode = null;
+        }
+            
     }
 }

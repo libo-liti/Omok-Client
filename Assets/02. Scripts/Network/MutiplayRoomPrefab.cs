@@ -13,7 +13,7 @@ public class MutiplayRoomPrefab : MonoBehaviour
     {
         enterButton.onClick.AddListener(() =>
         {
-            NetworkManager.Instance.JoinRoomCheck(roomName.text);
+            NetworkManager.Instance.JoinRoomCheck(roomName.text, mode.text);
         }); 
     }
 }
