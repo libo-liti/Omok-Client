@@ -12,7 +12,7 @@ public class JoinController : MonoBehaviour
     [SerializeField] private TMP_InputField confirmPasswordField;
 
     [SerializeField] private Button emailCheck;
-    [SerializeField] private AuthenticationManager _authenticationManager;
+    public AuthenticationManager _authenticationManager;
     
     private void Start()
     {

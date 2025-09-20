@@ -31,7 +31,7 @@ public class Timer : MonoBehaviour
         isRunning = true;
         gameObject.SetActive(true);
         timerText.color = first? Color.white:Color.black;
-        timerBackgroundImage.color = first? Color.black:Color.white;
+        timerBackgroundImage.color = first? new Color(0f, 0f, 0f, 0.6f) : new Color(1f, 1f, 1f, 0.6f);
             
     }
     

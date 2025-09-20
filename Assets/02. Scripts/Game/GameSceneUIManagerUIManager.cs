@@ -12,7 +12,7 @@ public class GameSceneUIManager : MonoBehaviour
     
     [SerializeField] private TMP_Text resultText;
 
-    [SerializeField] private Button exitButton;
+    /*[SerializeField] private Button exitButton;*/
     [SerializeField] private Button surrenderButton;
     [SerializeField] private TMP_Text userNameText;
     public TMP_Text opponentNameText;
@@ -22,13 +22,13 @@ public class GameSceneUIManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // 시작 시에는 비활성화
+        /*// 시작 시에는 비활성화
         if (resultText != null)
             resultText.gameObject.SetActive(false);
         if (exitButton != null)
             exitButton.gameObject.SetActive(false);
         if (surrenderButton != null)
-            surrenderButton.gameObject.SetActive(true);
+            surrenderButton.gameObject.SetActive(true);*/
     }
 
     private void Start()
@@ -36,13 +36,13 @@ public class GameSceneUIManager : MonoBehaviour
         if (userNameText != null && GameManager.Instance.IsGuestLoggedIn)
             userNameText.text = GameManager.Instance.GetGuestName();
         
-        exitButton.onClick.AddListener(() =>
+        /*exitButton.onClick.AddListener(() =>
         {
             Debug.Log("누름");
             ExitRoomAction?.Invoke();
             if(GameManager.Instance._gameType != Constants.GameType.MultiPlay)
                 GameManager.Instance.ChangeToMainScene();
-        });
+        });*/
         
         surrenderButton.onClick.AddListener(() =>
         {
@@ -62,17 +62,27 @@ public class GameSceneUIManager : MonoBehaviour
         }
     }
 
-    public void ShowButton(GameLogic.GameResult gameResult)
+    /*public void ShowButton(GameLogic.GameResult gameResult)
     {
         if (gameResult != GameLogic.GameResult.None)
         {
             exitButton.gameObject.SetActive(true);
             surrenderButton.interactable = false;
         }
-    }
+    }*/
     public void OnClickOpenPanel(GameObject panelPrefab)
     {
-        GameManager.Instance.OpenPanel(panelPrefab);
+        // 현재 Canvas 안에 같은 이름의 패널이 있는지 찾음
+        Transform existingPanel = GameManager.Instance.GetCanvas().transform.Find(panelPrefab.name + "(Clone)");
+
+        if (existingPanel != null)
+        {
+            Destroy(existingPanel.gameObject);
+        }
+        else
+        {
+            GameManager.Instance.OpenPanel(panelPrefab);
+        }
     }
 
     public void RematchCheck()

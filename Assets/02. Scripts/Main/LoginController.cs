@@ -44,9 +44,4 @@ public class LoginController : MonoBehaviour
 
         _authenticationManager.OnLoginButtonClicked();
     }
-
-    public void OnClickSignupButton()
-    {
-        // 나중에 회원가입 패널 연결 개발 시 추가
-    }
 }

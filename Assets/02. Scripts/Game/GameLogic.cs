@@ -182,15 +182,15 @@ public class GameLogic
         }
 
         GameSceneUIManager.Instance.ShowResult(message, fontColor);
-        GameSceneUIManager.Instance.ShowButton(gameResult);
+        /*GameSceneUIManager.Instance.ShowButton(gameResult);*/
 
         switch (_gameType)
         {
             case Constants.GameType.SinglePlay:
-                GameSceneUIManager.Instance.RematchCheck();
+                /*GameSceneUIManager.Instance.RematchCheck();*/
                 break;
             case Constants.GameType.DualPlay:
-                GameSceneUIManager.Instance.RematchCheck();
+                /*GameSceneUIManager.Instance.RematchCheck();*/
                 break;
             case Constants.GameType.MultiPlay:
                 break;

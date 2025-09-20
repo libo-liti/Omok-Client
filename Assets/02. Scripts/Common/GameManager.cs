@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -103,12 +104,37 @@ public class GameManager : Singleton<GameManager>
 
     public void OpenPanel(GameObject panelPrefab)
     {
+        Debug.Log("ㅇㄴㅇㄴ");
         if (_canvas != null && panelPrefab != null)
         {
-            Instantiate(panelPrefab, _canvas.transform);
+            GameObject panel = Instantiate(panelPrefab, _canvas.transform);
+            
+            CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = panel.AddComponent<CanvasGroup>();
+
+            canvasGroup.alpha = 1; 
+            StartCoroutine(FadeIn(canvasGroup, 0.5f)); // 0.5초 동안 페이드인
         }
     }
 
+    private IEnumerator FadeIn(CanvasGroup canvasGroup, float duration)
+    {
+        float time = 0f;
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(0, 1, time / duration);
+            yield return null;
+        }
+        canvasGroup.alpha = 1;
+    }
+    
+    public Canvas GetCanvas()
+    {
+        return _canvas;
+    }
+    
     public void OpenConfirmPanel(string message, System.Action onConfirm)
     {
         if (_canvas != null)
