@@ -150,10 +150,8 @@ public class NetworkManager : Singleton<NetworkManager>
     {
         if (scene.name == "Main")
         {
-            GameObject.Find("Arcade Mode Button").GetComponent<Button>().onClick.AddListener(Init);
             roomName = null;
             this.mode = null;
         }
-            
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Michsky.MUIP;
 using TMPro;
 using Unity.Burst;
 using UnityEngine;
@@ -10,7 +11,8 @@ public class MutiplayCreateRoom : MonoBehaviour
     [SerializeField] private TMP_InputField roomNameInputField;
     [FormerlySerializedAs("nomal")] [SerializeField] private Toggle normal;
     [SerializeField] private Toggle arcade;
-    [SerializeField] private Button createButton;
+    // [SerializeField] private Button createButton;
+    [SerializeField] private ButtonManager _createButton;
 
     private void Start()
     {
@@ -35,7 +37,8 @@ public class MutiplayCreateRoom : MonoBehaviour
             }
         });
         
-        createButton.onClick.AddListener(OnClickedButton);
+        _createButton.onClick.AddListener(OnClickedButton);
+        // createButton.onClick.AddListener(OnClickedButton);
     }
 
     private void OnClickedButton()
