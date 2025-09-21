@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
@@ -114,6 +115,7 @@ public class AuthenticationManager : MonoBehaviour
                     GameManager.Instance.OpenConfirmPanel("회원가입에 성공하셨습니다.", () =>
                     {
                         joinController.OnClickCancelButton();
+                        mainSceneUIManager.SetLoginPanelVisible(true);
                     });
                 }
                 else if (endpoint == "api/check-username")

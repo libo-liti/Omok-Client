@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using SocketIOClient;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 // 게임 시작 시 서버로부터 받는 데이터 구조
@@ -64,6 +65,23 @@ public class MultiplayController
         Debug.Log("서버에 연결되었습니다");
         string nickname = GameManager.Instance.guestName;
         socket.Emit("registerNickname", new {nickname = nickname});
+        if (NetworkManager.Instance.mode != null && NetworkManager.Instance.roomName != null)
+        {
+            var state = NetworkManager.Instance.state;
+            var roomName = NetworkManager.Instance.roomName;
+            var mode = NetworkManager.Instance.mode;
+            if (state == Constants.MultiplayControllerState.CreateRoom)
+            {
+                socket.Emit("createRoom", new { roomName = roomName, mode = mode });
+            }
+            else if (state == Constants.MultiplayControllerState.JoinRoom)
+            {
+                socket.Emit("joinRoom", new { roomName = roomName});
+            }
+
+            roomName = null;
+            mode = null;
+        }
     }
 
     private void OnServerDisconnected(object sender, string e)
