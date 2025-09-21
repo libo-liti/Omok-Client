@@ -161,11 +161,6 @@ public class Point : MonoBehaviour
 	// 포인트에서 마우스가 나갔을 때 처리
 	private void OnMouseExit()
 	{
-		if (EventSystem.current.IsPointerOverGameObject())
-		{
-			return;
-		}
-		
 		_onPointExit?.Invoke(_pointIndex);
 	}
 
