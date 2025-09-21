@@ -21,6 +21,8 @@ public class MainSceneUIManager : MonoBehaviour
 
     public void OnClickGuestLogin()
     {
+        emailField.text = "";
+        passwordInputField.text = "";
         GameManager.Instance.GuestLogin();
         RefreshUI();
     }
