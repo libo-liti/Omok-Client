@@ -1,7 +1,5 @@
 using System;
-using System.Data;
 using SocketIOClient;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 // 게임 시작 시 서버로부터 받는 데이터 구조
