@@ -1,11 +1,13 @@
 using System;
+using Michsky.MUIP;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MultiRoomList : MonoBehaviour
 {
     [SerializeField] private Transform content;
-    [SerializeField] private Button closedButton;
+    // [SerializeField] private Button closedButton;
+    [SerializeField] private ButtonManager closedButton;
     [SerializeField] private Button refreshButton;
     
     private void OnEnable()

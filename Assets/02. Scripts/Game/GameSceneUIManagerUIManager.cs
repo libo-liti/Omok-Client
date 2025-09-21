@@ -7,6 +7,7 @@ public class GameSceneUIManager : MonoBehaviour
 {
     public static GameSceneUIManager Instance;
 
+    public MultiplayController multiplayController;
     public Action SurrenderAction;
     public Action ExitRoomAction;
     
@@ -87,13 +88,26 @@ public class GameSceneUIManager : MonoBehaviour
 
     public void RematchCheck()
     {
-        GameManager.Instance.OpenAskPanel("재경기 하시겠습니까?", () =>
+        if (GameManager.Instance._gameType == Constants.GameType.MultiPlay || GameManager.Instance._gameType == Constants.GameType.ArcadePlay)
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Game");
-        },() =>
+            GameManager.Instance.OpenAskPanel("재경기 요청을 하시겠습니까?", () =>
+            {
+                
+            }, () =>
+            {
+                
+            });
+        }
+        else
         {
+            GameManager.Instance.OpenAskPanel("재경기 하시겠습니까?", () =>
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("Game");
+            },() =>
+            {
             
-        });
+            });
+        }
 
         /*Destroy(gameObject);*/
     }
