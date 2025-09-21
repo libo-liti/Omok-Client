@@ -58,18 +58,18 @@ public class GameLogic
         switch (gameType)
         {
             case Constants.GameType.SinglePlay:
-                bool firstPlayerIsMe = (UnityEngine.Random.Range(0, 2) == 0);
-
-                if (firstPlayerIsMe)
-                {
+            //     bool firstPlayerIsMe = (UnityEngine.Random.Range(0, 2) == 0);
+            //
+            //     if (firstPlayerIsMe)
+            //     {
                     firstPlayerState = new PlayerState(true);
                     secondPlayerState = new AIState(false);  // AI는 백
-                }
-                else
-                {
-                    firstPlayerState = new AIState(true);    // AI는 흑
-                    secondPlayerState = new PlayerState(false);
-                }
+                // }
+                // else
+                // {
+                //     firstPlayerState = new AIState(true);    // AI는 흑
+                //     secondPlayerState = new PlayerState(false);
+                // }
 
                 SetState(firstPlayerState);
                 break;
