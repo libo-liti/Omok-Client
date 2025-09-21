@@ -13,6 +13,8 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private GameObject loginPanel; //로그인 화면
     [SerializeField] private GameObject askPanel; // 여부 묻기 패널
     [SerializeField] private GameObject gameSelectPanel; //게임 선택화면
+    private GameObject currentAskPanel;
+    private GameObject currentConfirmPanel;
     
     public string guestName = null;
     public bool IsGuestLoggedIn => !string.IsNullOrEmpty(guestName);
@@ -147,10 +149,13 @@ public class GameManager : Singleton<GameManager>
     
     public void OpenConfirmPanel(string message, System.Action onConfirm)
     {
-        if (_canvas != null)
+        if (_canvas != null && confirmPanel != null)
         {
-            var confirmPanelObject = Instantiate(confirmPanel, _canvas.transform);
-            confirmPanelObject.GetComponent<ConfirmPanelController>()
+            // 이미 열려 있다면 새로 생성하지 않음
+            if (currentConfirmPanel != null) return;
+
+            currentConfirmPanel = Instantiate(confirmPanel, _canvas.transform);
+            currentConfirmPanel.GetComponent<ConfirmPanelController>()
                 .Show(message, onConfirm);
         }
     }
@@ -159,11 +164,15 @@ public class GameManager : Singleton<GameManager>
     {
         if (_canvas != null && askPanel != null)
         {
-            var askPanelObject = Instantiate(askPanel, _canvas.transform);
-            askPanelObject.GetComponent<AskPanelController>()
+            // 이미 패널이 있으면 새로 생성하지 않음
+            if (currentAskPanel != null) return;
+
+            currentAskPanel = Instantiate(askPanel, _canvas.transform);
+            currentAskPanel.GetComponent<AskPanelController>()
                 .Show(message, yes, no);
         }
     }
+
 
 
     public void GuestLogin()
