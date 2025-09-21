@@ -42,6 +42,7 @@ public class MultiplayController
     public MultiplayController(Action<Constants.MultiplayControllerState, string> onMultiplayStateChanged)
     {
         _onMultiplayStateChanged = onMultiplayStateChanged;
+        GameSceneUIManager.Instance.multiplayController = this;
         
         var uri = new System.Uri(Constants.ServerURL);
         socket = new SocketIOUnity(uri);
@@ -78,9 +79,6 @@ public class MultiplayController
             {
                 socket.Emit("joinRoom", new { roomName = roomName});
             }
-
-            roomName = null;
-            mode = null;
         }
     }
 
@@ -154,7 +152,7 @@ public class MultiplayController
         var data = JsonUtility.FromJson<PlayerData>(response.GetValue().GetRawText());
         onArcadeOpponent?.Invoke(data.player);
     }
-
+    
     public void DoPlayer(string myRoomId, int x, int y)
     {
         socket.Emit("doPlayer", new { room = myRoomId, x = x, y = y });
