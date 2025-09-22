@@ -18,6 +18,10 @@ public class StoneData
     public string player;
 }
 
+public class PlayerData
+{
+    public string player;
+}
 public class EmojiData
 {
     public int emoji;
@@ -31,10 +35,12 @@ public class MultiplayController
     public Action<int> onBlockDataChanged;
     public Action<int> setEmoji;
     public Action onDisconnectComplete;
+    public Action<string> onArcadeOpponent;
     
     public MultiplayController(Action<Constants.MultiplayControllerState, string> onMultiplayStateChanged)
     {
         _onMultiplayStateChanged = onMultiplayStateChanged;
+        GameSceneUIManager.Instance.multiplayController = this;
         
         var uri = new System.Uri(Constants.ServerURL);
         socket = new SocketIOUnity(uri);
@@ -48,6 +54,7 @@ public class MultiplayController
         socket.OnUnityThread("doOpponent", DoOpponent);
         socket.OnUnityThread("opponentEmoji", OpponentEmoji);
         socket.OnUnityThread("escapeOpponent", EscapeOpponent);
+        socket.OnUnityThread("arcadeOpponent", ArcadeOpponent);
         
         socket.Connect();
     }
@@ -57,6 +64,20 @@ public class MultiplayController
         Debug.Log("서버에 연결되었습니다");
         string nickname = GameManager.Instance.guestName;
         socket.Emit("registerNickname", new {nickname = nickname});
+        if (NetworkManager.Instance.mode != null && NetworkManager.Instance.roomName != null)
+        {
+            var state = NetworkManager.Instance.state;
+            var roomName = NetworkManager.Instance.roomName;
+            var mode = NetworkManager.Instance.mode;
+            if (state == Constants.MultiplayControllerState.CreateRoom)
+            {
+                socket.Emit("createRoom", new { roomName = roomName, mode = mode });
+            }
+            else if (state == Constants.MultiplayControllerState.JoinRoom)
+            {
+                socket.Emit("joinRoom", new { roomName = roomName});
+            }
+        }
     }
 
     private void OnServerDisconnected(object sender, string e)
@@ -92,7 +113,10 @@ public class MultiplayController
     {
         var data = JsonUtility.FromJson<GameStartData>(response.GetValue().GetRawText());
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayControllerState.GameStart, data.room);
-        Debug.Log($"[게임 시작] 방 ID: {data.room}, 플레이어1: {data.player1}, 플레이어2: {data.player2}");
+
+        GameSceneUIManager.Instance.opponentNameText.text =
+            (GameManager.Instance.guestName == data.player1) ? data.player2 : data.player1;
+        
         GameSceneUIManager.Instance.SurrenderAction = () =>
         {
             socket.Emit("surrender", new { room = data.room });
@@ -121,6 +145,12 @@ public class MultiplayController
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayControllerState.EndGame, _roomId);
     }
 
+    private void ArcadeOpponent(SocketIOResponse response)
+    {
+        var data = JsonUtility.FromJson<PlayerData>(response.GetValue().GetRawText());
+        onArcadeOpponent?.Invoke(data.player);
+    }
+    
     public void DoPlayer(string myRoomId, int x, int y)
     {
         socket.Emit("doPlayer", new { room = myRoomId, x = x, y = y });
@@ -129,6 +159,12 @@ public class MultiplayController
     public void PlayerEmoji(string myRoomId, int emojiNum)
     {
         socket.Emit("playerEmoji", new { room = myRoomId, emoji = emojiNum });
+    }
+
+    public void ArcadeSuccess(string myRoomId, Constants.PlayerType playerType)
+    {
+        var player = (playerType == Constants.PlayerType.PlayerA) ? "black" : "white";
+        socket.Emit("arcadeSuccess", new {room = myRoomId, player = player});
     }
 
     public void Dispose(Action onComplete)

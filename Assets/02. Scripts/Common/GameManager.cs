@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,6 +13,8 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private GameObject loginPanel; //로그인 화면
     [SerializeField] private GameObject askPanel; // 여부 묻기 패널
     [SerializeField] private GameObject gameSelectPanel; //게임 선택화면
+    private GameObject currentAskPanel;
+    private GameObject currentConfirmPanel;
     
     public string guestName = null;
     public bool IsGuestLoggedIn => !string.IsNullOrEmpty(guestName);
@@ -84,37 +87,75 @@ public class GameManager : Singleton<GameManager>
 
         if (scene.name == "Game")
         {
-            PointController pointController = FindFirstObjectByType<PointController>();
-            Timer timer = FindFirstObjectByType<Timer>();
-            EmojiController emojiController = FindFirstObjectByType<EmojiController>();
-            RenjuController renjuController = FindFirstObjectByType<RenjuController>();
-            if (pointController != null && emojiController != null && renjuController != null)
-            {
-                pointController.InitPoints();
-                emojiController.Init();
-                renjuController.Init();
+            StartCoroutine(Co_WaitAnimationAndStart());
+        }
+    }
+
+    // 카메라 애니메이션 대기 후 게임 시작
+    private IEnumerator Co_WaitAnimationAndStart()
+    {
+        PointController pointController = FindFirstObjectByType<PointController>();
+        Timer timer = FindFirstObjectByType<Timer>();
+        EmojiController emojiController = FindFirstObjectByType<EmojiController>();
+        RenjuController renjuController = FindFirstObjectByType<RenjuController>();
+        
+        if (pointController != null && emojiController != null && renjuController != null && timer != null)
+        {
+            pointController.InitPoints();
+            emojiController.Init();
+            renjuController.Init();
+            timer.StopTimer(); // 타이머 끈 상태로 시작
                 
-                _gameLogic = new GameLogic(pointController, emojiController, renjuController, timer, _gameType);
+            yield return new WaitForSeconds(2f); // 카메라 애니메이션 대기
+
+            _gameLogic = new GameLogic(pointController, emojiController, renjuController, timer, _gameType);
                 
-                Debug.Log(_gameType);
-            }
+            Debug.Log(_gameType);
         }
     }
 
     public void OpenPanel(GameObject panelPrefab)
     {
+        Debug.Log("ㅇㄴㅇㄴ");
         if (_canvas != null && panelPrefab != null)
         {
-            Instantiate(panelPrefab, _canvas.transform);
+            GameObject panel = Instantiate(panelPrefab, _canvas.transform);
+            
+            CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = panel.AddComponent<CanvasGroup>();
+
+            canvasGroup.alpha = 1; 
+            StartCoroutine(FadeIn(canvasGroup, 0.5f)); // 0.5초 동안 페이드인
         }
     }
 
+    private IEnumerator FadeIn(CanvasGroup canvasGroup, float duration)
+    {
+        float time = 0f;
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(0, 1, time / duration);
+            yield return null;
+        }
+        canvasGroup.alpha = 1;
+    }
+    
+    public Canvas GetCanvas()
+    {
+        return _canvas;
+    }
+    
     public void OpenConfirmPanel(string message, System.Action onConfirm)
     {
-        if (_canvas != null)
+        if (_canvas != null && confirmPanel != null)
         {
-            var confirmPanelObject = Instantiate(confirmPanel, _canvas.transform);
-            confirmPanelObject.GetComponent<ConfirmPanelController>()
+            // 이미 열려 있다면 새로 생성하지 않음
+            if (currentConfirmPanel != null) return;
+
+            currentConfirmPanel = Instantiate(confirmPanel, _canvas.transform);
+            currentConfirmPanel.GetComponent<ConfirmPanelController>()
                 .Show(message, onConfirm);
         }
     }
@@ -123,11 +164,15 @@ public class GameManager : Singleton<GameManager>
     {
         if (_canvas != null && askPanel != null)
         {
-            var askPanelObject = Instantiate(askPanel, _canvas.transform);
-            askPanelObject.GetComponent<AskPanelController>()
+            // 이미 패널이 있으면 새로 생성하지 않음
+            if (currentAskPanel != null) return;
+
+            currentAskPanel = Instantiate(askPanel, _canvas.transform);
+            currentAskPanel.GetComponent<AskPanelController>()
                 .Show(message, yes, no);
         }
     }
+
 
 
     public void GuestLogin()

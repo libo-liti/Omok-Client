@@ -11,7 +11,7 @@ public class LoginController : MonoBehaviour
 
     private void Start()
     {
-        _authenticationManager = GameObject.Find("NetworkManager").GetComponent<AuthenticationManager>();
+        _authenticationManager = GameObject.Find("Authentication Manager").GetComponent<AuthenticationManager>();
     }
 
     public void OnClickLoginButton()
@@ -39,12 +39,9 @@ public class LoginController : MonoBehaviour
 
         _authenticationManager.username = username;
         _authenticationManager.password = password;
+        _authenticationManager.emailField = emailField;
+        _authenticationManager.passwordInputField = passwordInputField;
 
         _authenticationManager.OnLoginButtonClicked();
-    }
-
-    public void OnClickSignupButton()
-    {
-        // 나중에 회원가입 패널 연결 개발 시 추가
     }
 }

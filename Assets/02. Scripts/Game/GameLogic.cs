@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -23,12 +24,27 @@ public class GameLogic
     public MultiplayController _multiplayController;
     private string _roomId;
     private Constants.GameType _gameType;
+    
+    public class StoneInfo
+    {
+        public int row;
+        public int col;
+        public Constants.PlayerType playerType;
+
+        public StoneInfo(int row, int col, Constants.PlayerType playerType)
+        {
+            this.row = row;
+            this.col = col;
+            this.playerType = playerType;
+        }
+    }
+    
+    private List<StoneInfo> _history = new List<StoneInfo>(); // 착수 순서대로 돌의 정보를 저장
 
     public GameLogic(PointController pointController, EmojiController emojiController, RenjuController renjuController, Timer timer, Constants.GameType gameType)
     {
         this.pointController = pointController;
         this.timer = timer;
-        this.timer.StopTimer(); // 타이머 끈 상태로 시작
         _emojiController = emojiController;
         this.renjuController = renjuController;
         
@@ -42,11 +58,22 @@ public class GameLogic
         switch (gameType)
         {
             case Constants.GameType.SinglePlay:
-                firstPlayerState = new PlayerState(true);
-                secondPlayerState = new AIState();
-                // 게임 시작
+            //     bool firstPlayerIsMe = (UnityEngine.Random.Range(0, 2) == 0);
+            //
+            //     if (firstPlayerIsMe)
+            //     {
+                    firstPlayerState = new PlayerState(true);
+                    secondPlayerState = new AIState(false);  // AI는 백
+                // }
+                // else
+                // {
+                //     firstPlayerState = new AIState(true);    // AI는 흑
+                //     secondPlayerState = new PlayerState(false);
+                // }
+
                 SetState(firstPlayerState);
                 break;
+
             case Constants.GameType.DualPlay:
                 firstPlayerState = new PlayerState(true);
                 secondPlayerState = new PlayerState(false);
@@ -61,14 +88,14 @@ public class GameLogic
                     {
                         case Constants.MultiplayControllerState.CreateRoom:
                             Debug.Log("## CreateRoom ##");
-                            firstPlayerState = new PlayerState(true, _multiplayController, _emojiController, _roomId);
+                            firstPlayerState = new PlayerState(true, _multiplayController, _emojiController, pointController, _roomId);
                             secondPlayerState = new MultiplayerState(false, _multiplayController);
                             // SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.JoinRoom:
                             Debug.Log("## JoinRoom ##");
                             firstPlayerState = new MultiplayerState(true, _multiplayController);
-                            secondPlayerState = new PlayerState(false, _multiplayController, _emojiController, _roomId);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _emojiController, pointController, _roomId);
                             // SetState(firstPlayerState);
                             break;
                         case Constants.MultiplayControllerState.GameStart:
@@ -78,9 +105,58 @@ public class GameLogic
                         case Constants.MultiplayControllerState.EndGame:
                             if (_currentPlayerState != null)
                             {
-                                Debug.Log("상대가 기권");
                                 var result = (firstPlayerState is PlayerState) ? GameResult.Win : GameResult.Lose;
                                 EndGame(result);
+                                GameManager.Instance.OpenConfirmPanel("상대방이 기권하고 나갔습니다.", null);
+                            }
+                            break;
+                        case Constants.MultiplayControllerState.ExitRoom:
+                            Dispose(() =>
+                            {
+                                GameManager.Instance.ChangeToMainScene();
+                            });
+                            break;
+                    }
+                });
+                break;
+            case Constants.GameType.ArcadePlay:
+                _multiplayController = new MultiplayController((state, roomId) =>
+                {
+                    _roomId = roomId;
+                    switch (state)
+                    {
+                        case Constants.MultiplayControllerState.CreateRoom:
+                            Debug.Log("## CreateRoom ##");
+                            firstPlayerState = new PlayerState(true, _multiplayController, _emojiController, pointController, _roomId);
+                            secondPlayerState = new MultiplayerState(false, _multiplayController);
+                            break;
+                        case Constants.MultiplayControllerState.JoinRoom:
+                            Debug.Log("## JoinRoom ##");
+                            firstPlayerState = new MultiplayerState(true, _multiplayController);
+                            secondPlayerState = new PlayerState(false, _multiplayController, _emojiController, pointController, _roomId);
+                            break;
+                        case Constants.MultiplayControllerState.GameStart:
+                            Debug.Log("## GameStart ##");
+                            SetState(firstPlayerState);
+                            break;
+                        case Constants.MultiplayControllerState.EndGame:
+                            if (pointController.blackScore == 5)
+                            {
+                                EndGame(GameResult.Win);
+                                break;
+                            }
+                            
+                            if (pointController.whiteScore == 5)
+                            {
+                                EndGame(GameResult.Lose);
+                                break;
+                            }
+                            
+                            if (_currentPlayerState != null)
+                            {
+                                var result = (firstPlayerState is PlayerState) ? GameResult.Win : GameResult.Lose;
+                                EndGame(result);
+                                GameManager.Instance.OpenConfirmPanel("상대방이 기권하고 나갔습니다.", null);
                             }
                             break;
                         case Constants.MultiplayControllerState.ExitRoom:
@@ -98,6 +174,11 @@ public class GameLogic
     public Constants.PlayerType[,] GetBoard()
     {
         return _board;
+    }
+
+    public Constants.PlayerType GetBoardValue(int row, int col)
+    {
+        return _board[row, col];
     }
 
     // 턴이 바뀔 때, 기존 진행하던 상태를 Exit 하고
@@ -120,6 +201,7 @@ public class GameLogic
         {
             _board[row, col] = playerType;
             pointController.PlaceMaker(Point.MarkerType.Black, row, col);
+            _history.Add(new StoneInfo(row, col, playerType));
             return true;
         }
         
@@ -127,9 +209,27 @@ public class GameLogic
         {
             _board[row, col] = playerType;
             pointController.PlaceMaker(Point.MarkerType.White, row, col);
+            _history.Add(new StoneInfo(row, col, playerType));
             return true;
         }        
         return false;
+    }
+
+    // 특정 위치에 미리보기용 반투명 돌 표시 / 숨기기
+    public void Preview(Constants.PlayerType playerType,
+        int row, int col, bool show)
+    {
+        if (_board[row, col] != Constants.PlayerType.None) return;
+
+        if (playerType == Constants.PlayerType.PlayerA)
+        {
+            pointController.Preview(Point.MarkerType.Black, row, col, show);
+        }
+
+        if (playerType == Constants.PlayerType.PlayerB)
+        {
+            pointController.Preview(Point.MarkerType.White, row, col, show);
+        }
     }
 
     // 금수 위치에 X 표시 활성화
@@ -170,21 +270,29 @@ public class GameLogic
                 break;
         }
 
+        // 기보 보여주기
+        for (int i = 0; i < _history.Count; i++)
+        {
+            pointController.ShowHistoryNumber(_history[i].row, _history[i].col, _history[i].playerType, i + 1);
+        }
+
         GameSceneUIManager.Instance.ShowResult(message, fontColor);
-        GameSceneUIManager.Instance.ShowButton(gameResult);
+        /*GameSceneUIManager.Instance.ShowButton(gameResult);*/
 
         switch (_gameType)
         {
             case Constants.GameType.SinglePlay:
-                GameSceneUIManager.Instance.RematchCheck();
+                /*GameSceneUIManager.Instance.RematchCheck();*/
                 break;
             case Constants.GameType.DualPlay:
-                GameSceneUIManager.Instance.RematchCheck();
+                /*GameSceneUIManager.Instance.RematchCheck();*/
                 break;
             case Constants.GameType.MultiPlay:
                 break;
         }
     }
+
+
     
     // 게임의 결과 확인
     public GameResult CheckGameResult(int y, int x)

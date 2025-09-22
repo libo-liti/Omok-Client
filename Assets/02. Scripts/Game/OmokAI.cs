@@ -209,7 +209,7 @@ public static class OmokAI
 					int openEnds = (frontOpen ? 1 : 0) + (backOpen ? 1 : 0);
 
 					// 위 정보들을 통해 점수를 계산
-					score += PatternScore(consecutive, openEnds);
+					score += PatternScore(consecutive, openEnds, player);
 				}
 			}
 		}
@@ -243,35 +243,39 @@ public static class OmokAI
 	/// <summary>
 	/// 패턴에 맞게 점수를 반환
 	/// </summary>
-	static long PatternScore(int consecutive, int openEnds)
+	static long PatternScore(int consecutive, int openEnds, Constants.PlayerType player)
 	{
-		if (consecutive >= 5) return 20000000; // immediate win
+		if (player == Constants.PlayerType.PlayerB) // AI 점수 계산할 때에는 5 이상에 대해 높은 점수 부여
+		{
+			if (consecutive >= 5) return 20000000;
+		}
+		else if (player == Constants.PlayerType.PlayerA) // 플레이어 점수 계산할 때에는 정확히 5일 때에 높은 점수 부여
+		{
+			if (consecutive == 5) return 20000000;
+		}
+		
 		if (consecutive == 4)
 		{
-			if (openEnds == 2) return 120000; // open four
-			if (openEnds == 1) return 12000; // closed four (one side blocked)
-			return 0;
+			if (openEnds == 2) return 120000; // 열린 4
+			if (openEnds == 1) return 12000; // 한쪽 막힌 4
 		}
 
 		if (consecutive == 3)
 		{
-			if (openEnds == 2) return 8000; // open three
-			if (openEnds == 1) return 800; // closed three
-			return 0;
+			if (openEnds == 2) return 8000; // 열린 3
+			if (openEnds == 1) return 800; // 한쪽 막힌 3
 		}
 
 		if (consecutive == 2)
 		{
-			if (openEnds == 2) return 300; // open two
-			if (openEnds == 1) return 30;
-			return 0;
+			if (openEnds == 2) return 300; // 열린 2
+			if (openEnds == 1) return 30; // 한쪽 막힌 2
 		}
 
 		if (consecutive == 1)
 		{
-			if (openEnds == 2) return 10;
-			if (openEnds == 1) return 1;
-			return 0;
+			if (openEnds == 2) return 10; // 열린 1
+			if (openEnds == 1) return 1; // 한쪽 막힌 1
 		}
 
 		return 0;
@@ -323,6 +327,9 @@ public static class OmokAI
 
 	#region 렌주룰
 	
+	/// <summary>
+	/// 오목판에서 흑돌 금수 위치를 확인하여 반환
+	/// </summary>
 	public static bool[,] IsForbidden(Constants.PlayerType[,] board)
 	{
 		bool[,] b = new bool[Constants.BoardSize, Constants.BoardSize];
@@ -334,8 +341,8 @@ public static class OmokAI
 				if (board[i, j] != Constants.PlayerType.None)
 					continue;
 				
-				int count_ThreeThree = 0;
-				int count_FourFour = 0;
+				int count_OpenThree = 0;
+				int count_Four = 0;
 				
 				for (int k = 0; k < 4; k++)
 				{
@@ -346,14 +353,14 @@ public static class OmokAI
 						break;
 					}
 					
-					if (IsThreeThree(line))	
-						count_ThreeThree++;
+					if (IsOpenThree(line))	
+						count_OpenThree++;
 					
-					if (IsFourFour(line))
-						count_FourFour++;
+					if (IsFour(line))
+						count_Four++;
 				}
 
-				if (count_ThreeThree >= 2 || count_FourFour >= 2)
+				if (count_OpenThree >= 2 || count_Four >= 2)
 					b[i, j] = true;
 			}
 		}
@@ -361,6 +368,11 @@ public static class OmokAI
 		return b;
 	}
 	
+	/// <summary>
+	/// 어떤 위치에서 거리 5만큼 떨어진곳까지의 돌 배치를 파악하여 문자열로 반환
+	/// O : 흑돌, X : 백돌, - : 빈 자리
+	/// ex ) "-OOO-" : 열린 3,  "XOOOO-" : 막힌 4
+	/// </summary>
 	static string GetLine(Constants.PlayerType[,] board, int x, int y, int dx, int dy)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -393,7 +405,6 @@ public static class OmokAI
 		}
 	
 		// 후방 (반대 방향)
-		// firstBlank = false;
 		nx = x - dx;
 		ny = y - dy;
 	
@@ -423,20 +434,34 @@ public static class OmokAI
 		return sb.ToString();
 	}
 
-	static bool IsThreeThree(string line)
+	/// <summary>
+	/// 문자열이 열린 3을 의미하는지 확인
+	/// </summary>
+	static bool IsOpenThree(string line)
 	{
-		return line.Contains("-OOO-") || line.Contains("-O-OO-") || line.Contains("-OO-O-");
+		bool isOpenThree = line.Contains("-OOO-") || line.Contains("-O-OO-") || line.Contains("-OO-O-");
+		
+		return  isOpenThree && !IsFour(line);
 	}
 	
-	static bool IsFourFour(string line)
+	/// <summary>
+	/// 문자열이 4을 의미하는지 확인
+	/// </summary>
+	static bool IsFour(string line)
 	{
+		// 열린 4 또는 막힌 4인지 확인
 		bool containFour = line.Contains("OOOO") || line.Contains("O-OOO") || line.Contains("OO-OO") ||
 		                   line.Contains("OOO-O");
+		
+		// 5목 이상이면 제외
 		bool notContainFive = line.Contains("OOOOO") == false;
 		
 		return containFour && notContainFive;
 	}
 	
+	/// <summary>
+	/// 문자열이 6목 이상을 의미하는지 확인
+	/// </summary>
 	static bool IsMoreThanFive(string line)
 	{
 		return line.Contains("OOOOOO");

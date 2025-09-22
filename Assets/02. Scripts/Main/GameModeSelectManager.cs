@@ -1,6 +1,16 @@
+using System;
 using UnityEngine;
+using UnityEngine.UI;
+
 public class GameModeSelectManager : MonoBehaviour
 {
+    [SerializeField] private Button multiplayButton;
+
+    private void OnEnable()
+    {
+        multiplayButton.onClick.AddListener(NetworkManager.Instance.Init);
+    }
+
     public void OnClickSinglePlay()
     {
         GameManager.Instance.ChangeToGameScene(Constants.GameType.SinglePlay);
